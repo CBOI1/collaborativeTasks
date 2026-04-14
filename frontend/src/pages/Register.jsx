@@ -32,6 +32,7 @@ function RegisterForm() {
             body: JSON.stringify(data),
         });
         const responseData = await response.json();
+        //handle response
         console.log(responseData);
 };
 
