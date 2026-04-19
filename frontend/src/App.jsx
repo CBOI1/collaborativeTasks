@@ -1,6 +1,8 @@
 
 import {createBrowserRouter, RouterProvider, Link, Outlet } from "react-router-dom";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard"
 
 const router = createBrowserRouter([
   {
@@ -13,7 +15,15 @@ const router = createBrowserRouter([
       },
       {
         path: "register",
-        Component : Register
+        Component : Register,
+      },
+      {
+        path: "login",
+        Component: Login,
+      },
+      {
+        path: "dashboard",
+        Component: Dashboard
       }
     ]
   }
@@ -26,6 +36,7 @@ function LinkNav({to, title}) {
 function NavBar() {
   return <nav className="flex justify-around p-2">
     <LinkNav to="register" title="Register"/>
+    <LinkNav to="login" title="Login" />
   </nav>
 }
 

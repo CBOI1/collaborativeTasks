@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { registerBaseSchema } from "../../schemas/baseRegisterSchema";
-
-export const registerSchema = registerBaseSchema.extend({
-    confirmPassword: z.string()
+const MIN_PASSWORD_LEN = 8;
+const registerSchema = z.object({
+    email: z.email(),
+    password: z.string().min(MIN_PASSWORD_LEN),
+    confirmPassword: z.string().min(MIN_PASSWORD_LEN)
 }).refine(
     schema => schema.password === schema.confirmPassword,
     {
@@ -10,3 +11,13 @@ export const registerSchema = registerBaseSchema.extend({
         path: ["confirmPassword"]
     }
 );
+
+const loginSchema = z.object({
+    email : z.email(),
+    password: z.string().min(MIN_PASSWORD_LEN)
+})
+
+export {
+    registerSchema,
+    loginSchema
+}

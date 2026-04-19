@@ -1,7 +1,7 @@
 import { registerSchema } from "./../../schemas/registerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {useForm} from 'react-hook-form';
-import {useState} from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from "react-router";
 
 function RegisterForm() {
     const {
@@ -13,14 +13,8 @@ function RegisterForm() {
     } = useForm({
         resolver: zodResolver(registerSchema)
     });
-    const [formData, updateForm] = useState({
-        'email' : '',
-        'password' : '',
-        'confirmPassword' : ''
-    });
-    function handleChange(event) {
-        updateForm({...formData, [event.target.name] : event.target.value})
-    }
+    const navigate = useNavigate();
+   
     async function sendFormData(data, e) {
         e.preventDefault(); // stop page reload
         const reqHeader = new Headers();
@@ -33,24 +27,28 @@ function RegisterForm() {
         });
         const responseData = await response.json();
         //handle response
-        console.log(responseData);
+        if (responseData.success) {
+            navigate("/login");
+        } else {
+            console.log(responseData.errors);
+        }
 };
 
 
     return <form onSubmit={handleSubmit(sendFormData)}>
         <div>
             <label htmlFor="email">Email:</label>
-            <input type="email" id="email" placeholder="johndoe@gmail.com" {...register('email', {onChange : handleChange})}/>
+            <input type="email" id="email" placeholder="johndoe@gmail.com" {...register('email')}/>
             {errors.email && <span className="text-red-500 ml-10">{errors.email.message}</span>}
         </div>
         <div>
             <label htmlFor="password">Password:</label>
-            <input type="password" id="password" {...register('password', {onChange : handleChange})}/>
+            <input type="password" id="password" {...register('password')}/>
             {errors.password && <span className="text-red-500 ml-10">{errors.password.message}</span>}
         </div>
         <div>
             <label htmlFor="confirm">Confirm password:</label>
-            <input type="password" id="confirm" {...register('confirmPassword', {onChange : handleChange})}/>
+            <input type="password" id="confirm" {...register('confirmPassword')}/>
             {errors.confirmPassword && <span className="text-red-500 ml-10">{errors.confirmPassword.message}</span>}
         </div>
         <button type="submit">Submit</button>
