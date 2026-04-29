@@ -11,7 +11,7 @@ const loginValidators = [
         .custom(async val => {
             const emailExists = await db.user.findUnique({
                 where : {email : val}
-            })
+            });
             if (!emailExists) {
                 throw new Error(`Email:${val} is not registered`);
             }

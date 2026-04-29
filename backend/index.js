@@ -17,10 +17,10 @@ app.use('/', express.static(index));
 //parse json from request body
 app.use(express.json());
 app.use(session({
-    secret: 1,
+    secret: "secret",
     resave: false,
     saveUninitialized: false,
-}))
+}));
 
 app.post('/api/register', 
     validation.registerIsValid,
@@ -58,21 +58,32 @@ app.post('/api/login',
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(BAD_REQUEST_CODE).res.json({
-                success : false,
+                user : null,
                 errors: errors.array()
-            })
+            });
         } else {
-            const userData = matchedData(req)
-            const user = await db.user.findUnique({
-                where : {email : userData.email}
-            })
-            req.session.userId = user.id;
+            const userInfo = matchedData(req);
+            const userObj = await db.user.findUnique({
+                where : {email : userInfo.email}
+            });
+            console.log("before");
+            req.session.userId = userObj.id;
+            console.log("after");
             return res.json({
-                success : true
-            })
+                user : userObj
+            });
         }
     }
 );
 
+app.get('/api/me', async (req, res) => { 
+    if (req.session.userId) {
+        const user = await db.user.findUnique({
+            where : { id : req.session.userId}
+        });
+        return res.json({user})
+    }
+     return res.json({user : null});
+});
 
 app.listen(PORT);

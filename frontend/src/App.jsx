@@ -3,6 +3,9 @@ import {createBrowserRouter, RouterProvider, Link, Outlet } from "react-router-d
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard"
+import { useState, useEffect, useContext } from "react";
+import { AuthContext } from "./AuthContext";
+import AuthProvider from "./components/AuthProvider";
 
 const router = createBrowserRouter([
   {
@@ -34,9 +37,10 @@ function LinkNav({to, title}) {
 }
 
 function NavBar() {
+  const {user} = useContext(AuthContext);
   return <nav className="flex justify-around p-2">
-    <LinkNav to="register" title="Register"/>
-    <LinkNav to="login" title="Login" />
+    {!user && <LinkNav to="register" title="Register"/>}
+    {!user && <LinkNav to="login" title="Login" /> }
   </nav>
 }
 
@@ -47,6 +51,8 @@ function IndexLayout() {
       <Outlet />
     </div>
   </div>
+  
+  
 }2
 
 function Index() {
