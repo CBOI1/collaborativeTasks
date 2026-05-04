@@ -1,35 +1,16 @@
 import { loginSchema } from "./../../schemas/registerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
-import { useNavigate } from "react-router";
-import { AuthContext } from "../AuthContext";
-import { useContext } from "react";
+import { useLoaderData, useNavigate } from "react-router";
+import { useAuthContext } from "../AuthContext";
 
 function LoginForm() {
     const {handleSubmit, register, formState : {errors}} = useForm({ resolver : zodResolver(loginSchema) })
+    const {login} = useAuthContext();
     const navigate = useNavigate();
-    const {user, setUser} = useContext(AuthContext);
-    const loginSubmit = async (data, e) => {
-        e.preventDefault(); // stop page reload
-        const reqHeader = new Headers();
-        reqHeader.append( "Content-Type", "application/json");
-        console.log("before fetch...");
-        const response = await fetch("/api/login", 
-        {
-            method: "POST",
-            headers: reqHeader,
-            body: JSON.stringify(data),
-            credentials: "include"
-        });
-        console.log("after fetch...");
-        const responseData = await response.json();
-        setUser(responseData.user);
-        //handle response
-        if (responseData.user !== null) {
-            navigate("/dashboard");
-        } else {
-            console.log(responseData.errors);
-        }
+    const loginSubmit = async (data) => {
+        await login(data);
+        navigate('/dashboard');
     }
     return <form onSubmit={handleSubmit(loginSubmit)}>
         <div>

@@ -3,6 +3,7 @@ const db = require("./database.js");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const MIN_PASSWORD_LEN = 8;
+const httpCodes = require('./httpCodes.js')
 const loginValidators = [
         body("email")
         .trim()
@@ -42,7 +43,7 @@ const validateInSeries = validations => {
         if (errors.isEmpty()) {
             return next();
         }
-        res.status(400).json({ errors: errors.array() });
+        res.status(httpCodes.BAD_REQUEST).json({ errors: errors.array() });
     }
 }
 

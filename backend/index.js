@@ -10,7 +10,7 @@ bcrypt = require("bcrypt");
 const {validationResult, matchedData} = require('express-validator');
 const PORT = 3000;
 const SALT_ROUNDS = 10;
-const BAD_REQUEST_CODE = 400;
+const httpCodes = require(path.join(__dirname, 'httpCodes.js'));
 
 //serve react files 
 app.use('/', express.static(index));
@@ -25,16 +25,14 @@ app.use(session({
 app.post('/api/register', 
     validation.registerIsValid,
     async (req, res) => {
-        console.log(req.body);
         //validate data:
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(BAD_REQUEST_CODE).json({
+            return res.status(httpCodes.BAD_REQUEST).json({
                 success: false,
                 message: "Validation Failed",
                 errors: errors.array()
             })
-            
         }
         //register user in the database
         const data = matchedData(req);
@@ -57,7 +55,7 @@ app.post('/api/login',
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(BAD_REQUEST_CODE).res.json({
+            return res.status(httpCodes.BAD_REQUEST).res.json({
                 user : null,
                 errors: errors.array()
             });
@@ -66,9 +64,7 @@ app.post('/api/login',
             const userObj = await db.user.findUnique({
                 where : {email : userInfo.email}
             });
-            console.log("before");
             req.session.userId = userObj.id;
-            console.log("after");
             return res.json({
                 user : userObj
             });
@@ -83,7 +79,15 @@ app.get('/api/me', async (req, res) => {
         });
         return res.json({user})
     }
-     return res.json({user : null});
+     return res.status(httpCodes.UNAUTHENTICATED).json({user : null});
 });
+
+app.post('/api/logout', async (req, res) => {
+    if (req.session.userId) {
+        req.session.destroy();
+    }
+    return res.json({user : null});
+});
+
 
 app.listen(PORT);

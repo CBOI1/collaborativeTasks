@@ -1,32 +1,35 @@
 import { useState, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
+import { redirect } from "react-router-dom";
 
 function AuthProvider({children}) {
+    console.log("AuthProvider mounted");
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true)
     //fetch user status on mount
-    useEffect(() => {
-        const controller = new AbortController();
-        async function fetchUser() {
-            console.log("effect ran")
-            //reqHeaders.append();
-            try {
-                const response = await fetch('/api/me', {
-                    credentials: "include",
-                    
-                });
-                const data = await response.json();
-                setUser(data.user);
-            } catch(err) {
-                console.log("clean up ")
-                console.log("Fetch error: " + err.message);
-            }
+    const login = async (credentials) => {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type' : 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(credentials)
+        })
+        if (!res.ok) {
+            throw new Error('Error: Login failed');
         }
-        fetchUser();
-        return () => {
-            controller.abort();
-        }
-    }, []);
-    return <AuthContext.Provider value={{user, setUser}}>
+        const {user} = await res.json();
+    }
+
+    const logout = async () => {
+        const res = await fetch('/api/logout', {
+            method: 'POST',
+            credentials: 'include',
+        });
+    }
+
+    return <AuthContext.Provider value={{user, loading, login, setUser}}>
         {children}
     </AuthContext.Provider>
     
