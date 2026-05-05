@@ -64,22 +64,23 @@ app.post('/api/login',
             const userObj = await db.user.findUnique({
                 where : {email : userInfo.email}
             });
-            req.session.userId = userObj.id;
-            return res.json({
-                user : userObj
+            req.session.regenerate((err) => {
+                req.session.userId = userObj.id;
+                res.json({ user : userObj });
             });
         }
     }
 );
 
 app.get('/api/me', async (req, res) => { 
-    if (req.session.userId) {
+    if (req.
+        session.userId) {
         const user = await db.user.findUnique({
             where : { id : req.session.userId}
         });
-        return res.json({user})
+        return res.json({user: user})
     }
-     return res.status(httpCodes.UNAUTHENTICATED).json({user : null});
+     return res.status(httpCodes.BAD_REQUEST).json({user : null});
 });
 
 app.post('/api/logout', async (req, res) => {

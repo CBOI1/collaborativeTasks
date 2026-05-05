@@ -1,10 +1,9 @@
-import {createBrowserRouter, RouterProvider, Link, Outlet, useLoaderData, redirect, useMatch } from "react-router-dom";
+import {createBrowserRouter, RouterProvider, Link, Outlet, useLoaderData, redirect, useMatch, useRouteLoaderData, Navigate, useNavigate, useRevalidator} from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard"
-import { useState, useEffect, use} from "react";
-import { useAuthContext, } from "./AuthContext";
-import AuthProvider from "./components/AuthProvider";
+import { useState, useEffect} from "react";
+
 
 
 const loadUser = async () => {
@@ -17,47 +16,40 @@ const loadUser = async () => {
   return {user: data.user};
 }
 
-const handleRoute = ({protectedRoute = false, noUser = false}) => {
-  return async () => {
-    console.log("Route handler protected: ", protectedRoute, " noUser: ", noUser);
-    if (protectedRoute && noUser) {
-      throw new Error("Invalid loader configuration");
-    } 
-    const {user} = await loadUser();
-    if (protectedRoute && !user) {
-      throw redirect('/login');
-    } else if (noUser && user) {
-      throw redirect('/dashboard')
-    }
-    return {user};
-  }
-}
-
 const router = createBrowserRouter([
   {
     path: "/",
     Component: RootLayout,
     loader: loadUser,
+    id: "root",
     children : [
       {
         index: true,
         Component: Index
       },
       {
-        path: "register",
-        Component : Register,
-        loader: handleRoute({noUser: true})
+        Component: UnauthRoute,
+        children : [
+          {
+            path: "register",
+            Component : Register,
+          },
+          {
+            path: "login",
+            Component: Login,
+          },
+        ]
       },
       {
-        path: "login",
-        Component: Login,
-        loader: handleRoute({noUser: true})
-      },
-      {
-        path: "dashboard",
-        Component: Dashboard,
-        loader: handleRoute({protectedRoute : true})
+        Component: ProtectedRoute,
+        children : [
+          {
+            path: "dashboard",
+            Component: Dashboard,
+          }
+        ]
       }
+      
     ]
   }
 ]);
@@ -67,12 +59,36 @@ function LinkNav({to, title}) {
 }
 
 function LogOut() {
-  const {logout} = useAuthContext();
-  return <button type="button" className="bg-green-200 hover:bg-green-300 rounded-full px-4 py-2" onClick={logout}>Logout</button>
+  const navigate = useNavigate();
+  const {revalidate} = useRevalidator();
+  const logout = async() => {
+    await fetch('/api/logout', {credentials : 'include', method: 'POST'});
+    revalidate();
+    navigate("/");
+  }
+  const { user } = useRouteLoaderData("root");
+  return user ? <button type="button" className="bg-green-200 hover:bg-green-300 rounded-full px-4 py-2" onClick={logout}>Logout</button> : <></>
 }
 
+function ProtectedRoute() {
+  const {user} = useRouteLoaderData("root");
+  if (!user) {
+    return <Navigate to="/login" replace="true"></Navigate>
+  }
+  return <Outlet></Outlet>
+}
+function UnauthRoute() {
+  const {user} = useRouteLoaderData("root");
+  if (user) {
+    return <Navigate to="/dashboard" replace="true"></Navigate>
+  }
+  return <Outlet></Outlet>
+}
+
+
+
 function NavBar() {
-  const {user} = useAuthContext();
+  const {user} = useRouteLoaderData("root");
   console.log("NAVBAR sees user:", user);
   const isDashboardRoute = useMatch('/dashboard');
   return <nav className="flex justify-around p-2">
@@ -84,22 +100,12 @@ function NavBar() {
 }
 
 function RootLayout() {
-  const { user : loadedUser} = useLoaderData();
-  const  { setUser } = useAuthContext();
-
-  useEffect(() => {
-    console.log("ROOT → setting user:", loadedUser);
-    setUser(loadedUser);
-  }, [loadedUser]);
-
   return <div className="flex flex-col grow gap-1 w-full">
     <NavBar />
     <div className="flex justify-center items-center grow self-stretch">
       <Outlet />
     </div>
   </div>
-  
-  
 }
 
 function Index() {
@@ -107,9 +113,7 @@ function Index() {
 }
 
 function App() {
-  return <AuthProvider>
-    <RouterProvider router={router}></RouterProvider>
-  </AuthProvider>
+  return <RouterProvider router={router}></RouterProvider>
 }
 
 export default App;
