@@ -90,5 +90,45 @@ app.post('/api/logout', async (req, res) => {
     return res.json({user : null});
 });
 
+app.post('/api/task', async (req, res) => {
+    if (!req.session.userId) {
+        res.status(httpCodes.UNAUTHENTICATED).json(null);
+    }
+    const result = await db.task.create({
+        data: {
+            title: req.body.title,
+            description: req.body.description,
+            userId: req.session.userId
+        }
+    });
+    res.json(result);
+});
+
+app.get('/api/task', async (req, res) => {
+    if (!req.session.userId) {
+        res.status(httpCodes.UNAUTHENTICATED).json(null);
+    }
+    const userRecords = await db.task.findMany({
+        where: {
+            userId: req.session.userId
+        }
+    });
+    res.json(userRecords);
+});
+
+app.get('/api/task/:id', async (req, res) => {
+    if (!req.session.userId) {
+        res.status(httpCodes.UNAUTHENTICATED).json(null);
+    }
+    const userRecord = await db.task.findUnique({
+        where: { id: parseInt(req.params.id, 10) }
+    });
+    if (!userRecord || userRecord.userId != req.session.userId) {
+        res.status(httpCodes.BAD_REQUEST).json(null);
+    } else {
+        res.json(userRecord);
+    }
+});
+
 
 app.listen(PORT);

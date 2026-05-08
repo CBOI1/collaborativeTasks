@@ -52,6 +52,7 @@ module.exports = {
         body("email")
         .trim()
         .isEmail()
+        .bail()
         .custom(async (val) => {
             const emailTaken = await db.user.findUnique({
                 where: { email: val }
