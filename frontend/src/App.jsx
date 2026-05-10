@@ -3,7 +3,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard"
 import { useState, useEffect} from "react";
-
+import Task from "./pages/Task";
 
 
 const loadUser = async () => {
@@ -17,12 +17,47 @@ const loadUser = async () => {
 }
 
 const fetchTasks = async () => {
+  console.log("DASHBOARD LOADER RUNNING..");
   const res = await fetch('/api/tasks', { credentials: "include"});
   if (!res.ok) {
     return {tasks: null};
   }
-  const tasks = res.json();
+  const tasks = await res.json();
   return {tasks};
+}
+
+const fetchTask = async ({params}) => {
+  console.log("TASK LOADER RUNNING...");
+  const res = await fetch(`/api/tasks/${params.tid}`, {credentials: "include"});
+  if (!res.ok) {
+    return {task: null};
+  }
+  const task = await res.json();
+  return {task};
+}
+
+const updateTask = async ({request, params}) => {
+  const formData = await request.formData();
+  const tid = params.tid;
+  const title = formData.get("title");
+  const description = formData.get("description");
+  const finished = formData.get("finished");
+  const res = await fetch(`/api/tasks/${tid}/edit`, {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      "Content-Type" : "application/json"
+    },
+    body : JSON.stringify({
+      title,
+      description,
+      finished: (finished ? true : false)
+    })
+  });
+  if (!res.ok) {
+    throw Error("Update failed");
+  }
+  return redirect("/dashboard");
 }
 
 const router = createBrowserRouter([
@@ -57,6 +92,13 @@ const router = createBrowserRouter([
             Component: Dashboard,
             loader: fetchTasks,
             id: "dashboard"
+          },
+          {
+            path: "tasks/:tid/edit",
+            Component: Task,
+            loader: fetchTask,
+            id: "get-task",
+            action: updateTask
           }
         ]
       }

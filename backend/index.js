@@ -148,7 +148,7 @@ app.delete('/api/tasks/:id', isAuthenticated, taskBelongsToUser, async (req, res
     res.json(userRecord);
 });
 
-app.patch('/api/tasks/:id', isAuthenticated, taskBelongsToUser, async (req, res) => {
+app.post('/api/tasks/:id/edit', isAuthenticated, taskBelongsToUser, async (req, res) => {
     const updatedRecord = await db.task.update({
         where : {
             id : parseInt(req.params.id)
@@ -156,6 +156,8 @@ app.patch('/api/tasks/:id', isAuthenticated, taskBelongsToUser, async (req, res)
         data : {
             title : req.body.title,
             description: req.body.description,
+            finished: req.body.finished,
+            updatedAt: new Date()
         }
     });
     res.json(updatedRecord);

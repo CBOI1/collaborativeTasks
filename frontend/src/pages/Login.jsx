@@ -1,22 +1,21 @@
 import { loginSchema } from "./../../schemas/registerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
-import { useRouteLoaderData, useNavigate} from "react-router";
+import { useRouteLoaderData, useNavigate, useRevalidator} from "react-router";
 
 
 const login = async (credentials) => {
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type' : 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(credentials)
-        })
-        if (!res.ok) {
-            throw new Error('Error: Login failed');
-        }
-        const {user} = await res.json();
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type' : 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(credentials)
+    });
+    if (!res.ok) {
+        throw new Error('Error: Login failed');
+    }
 }
 
 
@@ -24,8 +23,10 @@ const login = async (credentials) => {
 function LoginForm() {
     const {handleSubmit, register, formState : {errors}} = useForm({ resolver : zodResolver(loginSchema) })
     const navigate = useNavigate();
+    const {revalidate} = useRevalidator();
     const handler = async (data) => {
         await login(data);
+        revalidate();
         navigate('/dashboard');
     }
     return <form onSubmit={handleSubmit(handler)}>
