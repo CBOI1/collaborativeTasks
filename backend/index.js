@@ -90,10 +90,24 @@ app.post('/api/logout', async (req, res) => {
     return res.json({user : null});
 });
 
-app.post('/api/task', async (req, res) => {
+function isAuthenticated(req, res, next) {
     if (!req.session.userId) {
         res.status(httpCodes.UNAUTHENTICATED).json(null);
+    } else {
+        next();
     }
+}
+async function taskBelongsToUser(req, res, next) {
+    const userRecord = await db.task.findUnique({
+        where: { id: parseInt(req.params.id, 10) }
+    });
+    if (!userRecord || userRecord.userId != req.session.userId) {
+        return res.status(httpCodes.BAD_REQUEST).json(null);
+    }
+    next();
+}
+
+app.post('/api/tasks', isAuthenticated, async (req, res) => {
     const result = await db.task.create({
         data: {
             title: req.body.title,
@@ -104,10 +118,7 @@ app.post('/api/task', async (req, res) => {
     res.json(result);
 });
 
-app.get('/api/task', async (req, res) => {
-    if (!req.session.userId) {
-        res.status(httpCodes.UNAUTHENTICATED).json(null);
-    }
+app.get('/api/tasks', isAuthenticated, async (req, res) => {
     const userRecords = await db.task.findMany({
         where: {
             userId: req.session.userId
@@ -116,10 +127,7 @@ app.get('/api/task', async (req, res) => {
     res.json(userRecords);
 });
 
-app.get('/api/task/:id', async (req, res) => {
-    if (!req.session.userId) {
-        res.status(httpCodes.UNAUTHENTICATED).json(null);
-    }
+app.get('/api/tasks/:id', isAuthenticated, async (req, res) => {
     const userRecord = await db.task.findUnique({
         where: { id: parseInt(req.params.id, 10) }
     });
@@ -128,6 +136,29 @@ app.get('/api/task/:id', async (req, res) => {
     } else {
         res.json(userRecord);
     }
+});
+
+app.delete('/api/tasks/:id', isAuthenticated, taskBelongsToUser, async (req, res) => { 
+    const userRecord = await db.task.delete({
+        where: {
+            id : parseInt(req.params.id, 10),
+            userId : req.session.userId
+        }
+    });
+    res.json(userRecord);
+});
+
+app.patch('/api/tasks/:id', isAuthenticated, taskBelongsToUser, async (req, res) => {
+    const updatedRecord = await db.task.update({
+        where : {
+            id : parseInt(req.params.id)
+        },
+        data : {
+            title : req.body.title,
+            description: req.body.description,
+        }
+    });
+    res.json(updatedRecord);
 });
 
 

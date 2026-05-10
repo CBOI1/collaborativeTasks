@@ -16,6 +16,15 @@ const loadUser = async () => {
   return {user: data.user};
 }
 
+const fetchTasks = async () => {
+  const res = await fetch('/api/tasks', { credentials: "include"});
+  if (!res.ok) {
+    return {tasks: null};
+  }
+  const tasks = res.json();
+  return {tasks};
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -46,6 +55,8 @@ const router = createBrowserRouter([
           {
             path: "dashboard",
             Component: Dashboard,
+            loader: fetchTasks,
+            id: "dashboard"
           }
         ]
       }
@@ -84,8 +95,6 @@ function UnauthRoute() {
   }
   return <Outlet></Outlet>
 }
-
-
 
 function NavBar() {
   const {user} = useRouteLoaderData("root");
