@@ -22,6 +22,8 @@ app.use(session({
     saveUninitialized: false,
 }));
 
+const parseIntBase10 = (num) => parseInt(num, 10);
+
 app.post('/api/register', 
     validation.registerIsValid,
     async (req, res) => {
@@ -99,7 +101,7 @@ function isAuthenticated(req, res, next) {
 }
 async function taskBelongsToUser(req, res, next) {
     const userRecord = await db.task.findUnique({
-        where: { id: parseInt(req.params.id, 10) }
+        where: { id: parseIntBase10(req.params.id) }
     });
     if (!userRecord || userRecord.userId != req.session.userId) {
         return res.status(httpCodes.BAD_REQUEST).json(null);
@@ -129,7 +131,7 @@ app.get('/api/tasks', isAuthenticated, async (req, res) => {
 
 app.get('/api/tasks/:id', isAuthenticated, async (req, res) => {
     const userRecord = await db.task.findUnique({
-        where: { id: parseInt(req.params.id, 10) }
+        where: { id: parseIntBase10(req.params.id) }
     });
     if (!userRecord || userRecord.userId != req.session.userId) {
         res.status(httpCodes.BAD_REQUEST).json(null);
@@ -138,20 +140,11 @@ app.get('/api/tasks/:id', isAuthenticated, async (req, res) => {
     }
 });
 
-app.delete('/api/tasks/:id', isAuthenticated, taskBelongsToUser, async (req, res) => { 
-    const userRecord = await db.task.delete({
-        where: {
-            id : parseInt(req.params.id, 10),
-            userId : req.session.userId
-        }
-    });
-    res.json(userRecord);
-});
 
-app.post('/api/tasks/:id/edit', isAuthenticated, taskBelongsToUser, async (req, res) => {
+app.post('/api/tasks/:id/update', isAuthenticated, taskBelongsToUser, async (req, res) => {
     const updatedRecord = await db.task.update({
         where : {
-            id : parseInt(req.params.id)
+            id : parseInt(req.params.id ?? null)
         },
         data : {
             title : req.body.title,
@@ -162,6 +155,28 @@ app.post('/api/tasks/:id/edit', isAuthenticated, taskBelongsToUser, async (req, 
     });
     res.json(updatedRecord);
 });
+
+app.post('/api/tasks/create', isAuthenticated, async (req, res) => {
+    const createdRecord = await db.task.create({
+        data : {
+            title : req.body.title,
+            description: req.body.description,
+            finished: req.body.finished,
+            userId: req.session.userId
+        }
+    });
+    res.json(createdRecord);
+});
+
+app.delete("/api/tasks/:id/delete", isAuthenticated, taskBelongsToUser, async (req, res) => {
+    const deletedUser = await db.task.delete({
+        where: {
+            id: parseIntBase10(req.params.id)
+        }
+    });
+    res.json(deletedUser);
+});
+
 
 
 app.listen(PORT);

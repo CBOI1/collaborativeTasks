@@ -1,8 +1,8 @@
 import { Form } from "react-router-dom";
 import { useRouteLoaderData } from "react-router-dom";
 
-function Task() {
-    const { task } = useRouteLoaderData("get-task");
+function Task({isNew}) {
+    const task = isNew ? {} : useRouteLoaderData("get-task").task;
     return <Form method="POST">
         <div>
             <label htmlFor="title">Title:</label>
@@ -16,8 +16,15 @@ function Task() {
             <label htmlFor="finished">Finished:</label>
             <input type="checkbox" name="finished" id="finished" defaultChecked={task.finished}/>
         </div>
-        <button type="submit">Update</button>
+        <button type="submit">{isNew ? "Create" : "Update"}</button>
     </Form>
 }
 
-export default Task;
+
+
+export function ExistingTask() {
+    return <Task isNew={false}></Task>
+}
+export function NewTask() {
+    return <Task isNew={true}></Task>
+}
