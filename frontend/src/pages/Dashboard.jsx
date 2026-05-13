@@ -1,8 +1,8 @@
 import { useRouteLoaderData } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { FiMoreVertical } from "react-icons/fi";
-import { useRevalidator } from "react-router-dom";
+import { FiMoreVertical, FiTrash2, FiEdit } from "react-icons/fi";
+import { useRevalidator, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const options ={
     "delete" : {
@@ -12,17 +12,29 @@ const options ={
                 credentials: "include",
                 method: "DELETE"
             });
-        }
+        },
+    },
+    "edit" : {
+            name: "Edit",
     }
 }
 
 function MenuOptions({tid, options}) {
     const {revalidate} = useRevalidator();
-    return <ul className="bg-gray-300 text-black p-2 rounded-full absolute -right-20 top-0 px-4">
-        <li key={options.delete.name} className="text-red-400" onClick={async () => {
+    return <ul className="bg-gray-300 text-black p-2 rounded-full absolute -right-30 top-0 px-4">
+        <li key={options.delete.name} className="text-red-400 flex justify-between gap-1 border-b-1 border-gray-500" onClick={async () => {
             await options.delete.operation(tid);
             revalidate();
-        }}>{options.delete.name}</li>
+        }}>
+            {options.delete.name}
+            <FiTrash2></FiTrash2>
+        </li >
+        <li >
+            <Link to={`/tasks/${tid}/update`} className="text-blue-400 flex justify-between gap-1">
+                {options.edit.name}
+                <FiEdit></FiEdit>
+            </Link>
+        </li>
     </ul>
 }
 
@@ -50,7 +62,7 @@ function Dashboard() {
     const menu = <ExpandableMenu currentTarget={activeMenuBtn}></ExpandableMenu>;
     const taskItems = tasks.map(t => 
             <li key={t.id} className="bg-green-200 rounded-full px-2 py-4 relative flex justify-between max-w-48">
-                <Link to={`/tasks/${t.id}/update`} className="truncate">{t.title}</Link>
+                <span className="truncate">{t.title}</span>
                 <div onClick={ (e) => {
                     setActiveTid(t.id);
                     setActiveMenuBtn(e.currentTarget)
