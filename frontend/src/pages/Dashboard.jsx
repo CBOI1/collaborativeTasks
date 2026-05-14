@@ -1,10 +1,12 @@
 import { useRouteLoaderData } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext, useRef } from "react";
 import { FiMoreVertical, FiTrash2, FiEdit } from "react-icons/fi";
-import { useRevalidator, useNavigate } from "react-router-dom";
+import { useRevalidator } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-const options ={
+const TaskContext = createContext(null);
+
+const options = {
     "delete" : {
         name: "Delete",
         operation: async (tid) => {
@@ -17,6 +19,13 @@ const options ={
     "edit" : {
             name: "Edit",
     }
+}
+
+function Modal({title, body, action, dismiss}) {
+    return <div>
+
+    </div>
+
 }
 
 function MenuOptions({tid, options}) {
@@ -38,41 +47,60 @@ function MenuOptions({tid, options}) {
     </ul>
 }
 
-function ExpandableMenu({anchor, setActiveTid, tid}) {
+function ActiveMenu({tid}) {
+    const {setActiveTid, activeMenuContainer, setActiveMenuContainer} = useContext(TaskContext)
     useEffect(() => {
         function handleTap(e) {
-            if (anchor && !anchor.contains(e.target)) {
+            if (activeMenuContainer && !activeMenuContainer.contains(e.target)) {
                 setActiveTid(null);
+                setActiveMenuContainer(null);
             }
         }
         document.addEventListener("mousedown", handleTap);
         return () => {
             document.removeEventListener("mousedown", handleTap);
         }
-    }, [anchor]);
+    }, [activeMenuContainer]);
     return <MenuOptions tid={tid} options={options}></MenuOptions>
+}
+
+
+function TaskPreview({task}) {
+    const menuContainerRef = useRef(null);
+    const {activeTid, setActiveTid, setActiveMenuContainer} = useContext(TaskContext)
+    console.log("Task id ", task.id);
+    console.log("Active tid", activeTid);
+    return <li className="grid-cols-3 grid-rows-3 shrink-0">
+        <span>{task.title}</span>
+        <span>{task.description}</span>
+        <div ref={menuContainerRef} className="relative">
+            <FiMoreVertical onClick= { 
+                () => {
+                    setActiveTid(task.id);
+                    setActiveMenuContainer(menuContainerRef.current);
+                }}>
+            </FiMoreVertical>
+            {activeTid === task.id && <ActiveMenu tid={task.id}></ActiveMenu>}
+        </div>
+    </li>
 }
 
 function Dashboard() {
     const {tasks} = useRouteLoaderData("dashboard");
     const [activeTid, setActiveTid] = useState(null);
-    const [activeMenuBtn, setActiveMenuBtn] = useState(null);
+    const [activeMenuContainer, setActiveMenuContainer] = useState(null);
     const [loading, setLoading] = useState(false);
-    
-    const menu = <ExpandableMenu currentTarget={activeMenuBtn}></ExpandableMenu>;
-    const taskItems = tasks.map(t => 
-            <li key={t.id} className="bg-green-200 rounded-full px-2 py-4 relative flex justify-between max-w-48">
-                <span className="truncate">{t.title}</span>
-                <div onClick={ (e) => {
-                    setActiveTid(t.id);
-                    setActiveMenuBtn(e.currentTarget)
-                }} className="shrink-0">
-                    <FiMoreVertical data-tid={t.id}></FiMoreVertical>
-                    {t.id === activeTid && <ExpandableMenu anchor={activeMenuBtn} setActiveTid={setActiveTid} tid={t.id}></ExpandableMenu>}
-                </div>
-            </li>
-    )
-    return <ul className="flex flex-col gap-2">{taskItems}</ul>
+    const taskItems = tasks.map(t => <TaskPreview task={t} key={t.id}></TaskPreview>)
+    return <ul className="flex flex-col gap-2">
+        <TaskContext.Provider value={{
+            activeTid,
+            setActiveTid, 
+            setActiveMenuContainer, 
+            activeMenuContainer
+        }}>
+            {taskItems}
+        </TaskContext.Provider>
+    </ul>
 }
 
 export default Dashboard;

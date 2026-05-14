@@ -17,12 +17,12 @@ function RegisterForm() {
    
     async function sendFormData(data, e) {
         e.preventDefault(); // stop page reload
-        const reqHeader = new Headers();
-        reqHeader.append( "Content-Type", "application/json");
         const response = await fetch("/api/register", 
         {
             method: "POST",
-            headers: reqHeader,
+            headers: {
+                "Content-Type" : "application/json"
+            },
             body: JSON.stringify(data),
         });
         const responseData = await response.json();

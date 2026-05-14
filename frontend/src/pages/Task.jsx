@@ -20,8 +20,6 @@ function Task({isNew}) {
     </Form>
 }
 
-
-
 export function ExistingTask() {
     return <Task isNew={false}></Task>
 }
