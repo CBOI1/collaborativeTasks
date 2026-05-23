@@ -17,7 +17,7 @@ const router = createBrowserRouter([
     children : [
       {
         index: true,
-        element: <p className="grow">Hello world!</p>
+        element: <p className="grow"></p>
       },
       {
         Component: UnauthRoute,
