@@ -29,17 +29,24 @@ function LoginForm() {
         revalidate();
         navigate('/dashboard');
     }
-    return <form onSubmit={handleSubmit(handler)}>
-        <div>
-            <label htmlFor="email">Email:</label>
-            <input type="text" id="email" {...register("email")}/>
-        </div>
-        <div>
-            <label htmlFor="password">Password:</label>
-            <input type="password" id="password" {...register("password")}/>
-        </div>
-        <button type="submit">Submit</button>
-    </form>
+    const inputStyle = "bg-gray-200 rounded-lg border-black/25 p-1 border-1 min-w-1/2";
+    const inputContainerStyle = "flex flex-col";
+    return <div className="flex flex-col self-stretch grow items-center">
+        <form onSubmit={handleSubmit(handler)} className="grow flex flex-col gap-8 justify-center min-w-1/2">
+            <div className={inputContainerStyle}>
+                <label htmlFor="email" >Email:</label>
+                <input type="text" id="email" {...register("email") } className={inputStyle}/>
+            </div>
+            <div className={inputContainerStyle}>
+                <label htmlFor="password">Password:</label>
+                <input type="password" id="password" {...register("password")} className={inputStyle}/>
+            </div>
+            <button type="submit" className="self-center">Submit</button>
+        </form>
+    </div>
+    
+    
+    
 
 }
 

@@ -51,7 +51,7 @@ module.exports = {
     registerIsValid : [
         body("email")
         .trim()
-        .isEmail()
+        .isEmail().withMessage((val) => `${val} is not valid`)
         .bail()
         .custom(async (val) => {
             const emailTaken = await db.user.findUnique({
@@ -62,9 +62,9 @@ module.exports = {
                 throw new Error(`Email:${val} is already in use`);
             }
             return true;
-        }),
-        body("password").isLength({min: MIN_PASSWORD_LEN}),
-        body("confirmPassword").custom((val, {req}) => val === req.body.password)
+        }).withMessage((val) => `${val} is already registered`),
+        body("password").isLength({min: MIN_PASSWORD_LEN}).withMessage(`Password must be at least ${MIN_PASSWORD_LEN} characters.`),
+        body("confirmPassword").custom((val, {req}) => val === req.body.password).withMessage("Passwords do not match")
     ],
     loginIsValid: validateInSeries(loginValidators)
 }

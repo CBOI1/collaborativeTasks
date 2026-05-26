@@ -30,10 +30,8 @@ function NavBar() {
 }
 
 export default function RootLayout() {
-  return <div className="flex flex-col grow gap-1 w-full">
+  return <div className="grow self-stretch flex flex-col gap-1">
     <NavBar />
-    <div className="flex justify-center items-center grow self-stretch">
-      <Outlet />
-    </div>
+    <Outlet />
   </div>
 }
