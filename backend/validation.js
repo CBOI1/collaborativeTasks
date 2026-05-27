@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const MIN_PASSWORD_LEN = 8;
 const httpCodes = require('./httpCodes.js')
+const TITLE_MAX_LEN = 100;
+const DESC_MAX_LEN = 500;
 const loginValidators = [
         body("email")
         .trim()
@@ -14,7 +16,7 @@ const loginValidators = [
                 where : {email : val}
             });
             if (!emailExists) {
-                throw new Error(`Email:${val} is not registered`);
+                throw new Error(`${val} is not registered`);
             }
             return true;
         }),
@@ -27,7 +29,7 @@ const loginValidators = [
             }));
             const passwordMatched = await bcrypt.compare(val, currUser.hash);
             if (!passwordMatched) {
-                throw new Error("Password is incorrect.");
+                throw new Error("Password is incorrect");
             }
             return true;
         })
@@ -66,5 +68,9 @@ module.exports = {
         body("password").isLength({min: MIN_PASSWORD_LEN}).withMessage(`Password must be at least ${MIN_PASSWORD_LEN} characters.`),
         body("confirmPassword").custom((val, {req}) => val === req.body.password).withMessage("Passwords do not match")
     ],
-    loginIsValid: validateInSeries(loginValidators)
+    loginIsValid: validateInSeries(loginValidators),
+    taskIsValid: [
+        body('title').trim().isLength({max: TITLE_MAX_LEN}).withMessage(`Title must be at most ${TITLE_MAX_LEN} characters`),
+        body('description').trim().isLength({max: DESC_MAX_LEN}).withMessage(`Description must be at most ${DESC_MAX_LEN} characters`)
+    ]
 }

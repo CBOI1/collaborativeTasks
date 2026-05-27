@@ -1,5 +1,6 @@
 import { redirect } from "react-router-dom";
-
+import {toast} from 'react-hot-toast';
+import { generateErrorToast } from "../utils.jsx";
 const createTask = async ({request}) => {
     const formData = await request.formData();
     const title = formData.get("title");
@@ -18,7 +19,9 @@ const createTask = async ({request}) => {
       })
     });
     if (!res.ok) {
-      throw Error("Creation failed");
+      const data = await res.json();
+      generateErrorToast(data.errors);
+      return;
     }
     return redirect("/dashboard");
 }
@@ -41,7 +44,9 @@ const updateTask = async ({request, params}) => {
       })
     });
     if (!res.ok) {
-      throw Error("Update failed");
+      const data = await res.json();
+      generateErrorToast(data.errors);
+      return;
     }
     return redirect("/dashboard");
 }

@@ -108,8 +108,8 @@ function Dashboard() {
         setTidToDelete={setTidToDelete}
         ></TaskPreview>
     )
-    return <>
-        <ul className="flex flex-col gap-2 self-stretch max-w-3/5 grow">
+    return <div className="grow flex flex-col justify-center items-center">
+        <ul className="flex flex-col gap-2 min-w-1/2 grow">
                 {taskItems}
         </ul>
         <Modal 
@@ -125,7 +125,7 @@ function Dashboard() {
             onClose={() => setTidToDelete(null)}
             id={'delete-modal'}
         ></Modal>
-    </>
+    </div>
 }
 
 export default Dashboard;

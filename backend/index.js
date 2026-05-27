@@ -141,7 +141,13 @@ app.get('/api/tasks/:id', isAuthenticated, async (req, res) => {
 });
 
 
-app.post('/api/tasks/:id/update', isAuthenticated, taskBelongsToUser, async (req, res) => {
+app.post('/api/tasks/:id/update', isAuthenticated, taskBelongsToUser, validation.taskIsValid, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(httpCodes.BAD_REQUEST).json({
+            errors: errors.array()
+        })
+    }
     const updatedRecord = await db.task.update({
         where : {
             id : parseInt(req.params.id ?? null)
@@ -156,7 +162,13 @@ app.post('/api/tasks/:id/update', isAuthenticated, taskBelongsToUser, async (req
     res.json(updatedRecord);
 });
 
-app.post('/api/tasks/create', isAuthenticated, async (req, res) => {
+app.post('/api/tasks/create', isAuthenticated, validation.taskIsValid, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(httpCodes.BAD_REQUEST).json({
+            errors: errors.array()
+        })
+    }
     const createdRecord = await db.task.create({
         data : {
             title : req.body.title,
