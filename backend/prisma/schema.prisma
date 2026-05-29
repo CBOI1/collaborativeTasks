@@ -17,6 +17,13 @@ model User {
   email     String    @unique
   hash      String
   createdAt DateTime  @default(now())
+  Projects  Project[]
+}
+
+model Project {
+  id        Int       @id @default(autoincrement())
+  owner     User      @relation(fields: [ownerId], references: [id])
+  ownerId   Int       @unique
   tasks     Task[]
 }
 
@@ -27,6 +34,6 @@ model Task {
   finished      Boolean @default(false)
   updatedAt     DateTime  @default(now())
   createdAt     DateTime  @default(now())
-  user          User  @relation(fields: [userId], references: [id])
-  userId        Int
+  project       Project   @relation(fields: [projectId], references: [id])
+  projectId     Int       @unique
 }
