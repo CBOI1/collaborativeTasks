@@ -3,14 +3,14 @@ const db = require("./database.js");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const MIN_PASSWORD_LEN = 8;
-const httpCodes = require('./httpCodes.js')
+const { httpCodes } = require('./utils.js');
 const TITLE_MAX_LEN = 100;
 const DESC_MAX_LEN = 500;
 const loginValidators = [
         body("email")
         .trim()
-        .isEmail().withMessage("Email is not valid.")
-        .bail()
+        .notEmpty().withMessage('Email is required.').bail()
+        .isEmail().withMessage("Email is not valid.").bail()
         .custom(async val => {
             const emailExists = await db.user.findUnique({
                 where : {email : val}
@@ -48,13 +48,23 @@ const validateInSeries = validations => {
         res.status(httpCodes.BAD_REQUEST).json({ errors: errors.array() });
     }
 }
+const checkValidation = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(httpCodes.BAD_REQUEST).json({
+            errors
+        });
+    }
+    next();
+}
 
+//middleware provides validation constraints and a check
 module.exports = {
     registerIsValid : [
         body("email")
         .trim()
-        .isEmail().withMessage((val) => `${val} is not valid`)
-        .bail()
+        .notEmpty().withMessage('Email is required').bail()
+        .isEmail().withMessage((val) => `${val} is not valid`).bail()
         .custom(async (val) => {
             const emailTaken = await db.user.findUnique({
                 where: { email: val }
@@ -66,11 +76,14 @@ module.exports = {
             return true;
         }).withMessage((val) => `${val} is already registered`),
         body("password").isLength({min: MIN_PASSWORD_LEN}).withMessage(`Password must be at least ${MIN_PASSWORD_LEN} characters.`),
-        body("confirmPassword").custom((val, {req}) => val === req.body.password).withMessage("Passwords do not match")
+        body("confirmPassword").custom((val, {req}) => val === req.body.password).withMessage("Passwords do not match"),
+        checkValidation
     ],
-    loginIsValid: validateInSeries(loginValidators),
+    loginIsValid: [validateInSeries(loginValidators), checkValidation],
     taskIsValid: [
-        body('title').trim().isLength({max: TITLE_MAX_LEN}).withMessage(`Title must be at most ${TITLE_MAX_LEN} characters`),
-        body('description').trim().isLength({max: DESC_MAX_LEN}).withMessage(`Description must be at most ${DESC_MAX_LEN} characters`)
+        body('title').trim().notEmpty().withMessage("Title cannot be empty").bail()
+        .isLength({max: TITLE_MAX_LEN}).withMessage(`Title must be at most ${TITLE_MAX_LEN} characters`),
+        body('description').trim().isLength({max: DESC_MAX_LEN}).withMessage(`Description must be at most ${DESC_MAX_LEN} characters`),
+        checkValidation
     ]
 }

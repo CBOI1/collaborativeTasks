@@ -7,6 +7,7 @@ require('dotenv').config({path: path.join(__dirname, ".env")});
 const PORT = 3000;
 const userRouter = require(path.join(__dirname, 'routes/user.js'));
 const taskRouter = require(path.join(__dirname, 'routes/task.js'));
+const projectRouter = require(path.join(__dirname, 'routes/project.js'));
 
 //serve react files 
 app.use(express.static(index));
@@ -20,5 +21,6 @@ app.use(session({
 
 app.use('/api', userRouter);
 app.use('/api', taskRouter);
+app.use('/api', projectRouter);
 
 app.listen(PORT);
