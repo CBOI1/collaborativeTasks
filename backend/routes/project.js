@@ -1,11 +1,11 @@
 const express = require("express");
 const path = require("path");
 const db = require(path.join(__dirname, '../database.js'));
-const { httpCodes, isAuthenticated } = require(path.join(__dirname, '..', 'utils'));
+const { httpCodes, isAuthenticated, userCanAccessProject, parseIntBase10 } = require(path.join(__dirname, '..', 'utils'));
 const projectRouter = express.Router();
-
+const { projectIsValid } = require(path.join(__dirname, '../validation'));
 //create a project for a specific user
-projectRouter.post('/projects', isAuthenticated, async (req, res) => {
+projectRouter.post('/projects', isAuthenticated, projectIsValid, async (req, res) => {
     const userId = req.session.userId;
     const projectRecord = await db.project.create({
         data: {
@@ -28,6 +28,27 @@ projectRouter.get('/projects', isAuthenticated, async (req, res) => {
     return res.json({
         projects
     });
+});
+
+projectRouter.patch('/projects/:pid', userCanAccessProject, projectIsValid, async (req, res) => {
+    await db.project.update({
+        where: {
+            id : parseIntBase10(req.params.pid)
+        }, 
+        data: {
+            title : req.body.title
+        }
+    });
+    return res.json(null);
+});
+
+projectRouter.delete('/projects/:pid', userCanAccessProject, async (req, res) => {
+    await db.project.delete({
+        where : {
+            id : parseIntBase10(req.params.pid)
+        }
+    });
+    return res.json(null);
 });
 
 module.exports = projectRouter;

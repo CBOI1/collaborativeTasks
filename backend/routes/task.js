@@ -6,16 +6,6 @@ const {validationResult, matchedData} = require('express-validator');
 const {httpCodes, parseIntBase10, isAuthenticated, checkValidation, userCanAccessProject, userCanAccessTask} = require(path.join(__dirname, '../utils'));
 const taskRouter = express.Router();
 
-async function taskExistsInProject(req, res, next) {
-    const userRecord = await db.task.findUnique({
-        where: { id: parseIntBase10(req.params.id) }
-    });
-    if (userRecord === null || userRecord.userId !== req.session.userId) {
-        return res.status(utils.httpCodes.BAD_REQUEST).json(null);
-    }
-    next();
-}
-
 //create a task
 taskRouter.post('/projects/:pid/tasks', userCanAccessProject, async (req, res) => {
     const result = await db.task.create({

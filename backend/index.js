@@ -5,9 +5,9 @@ const session = require('express-session')
 const index = path.join(__dirname, "..", "frontend", "dist");
 require('dotenv').config({path: path.join(__dirname, ".env")});
 const PORT = 3000;
-const userRouter = require(path.join(__dirname, 'routes/user.js'));
-const taskRouter = require(path.join(__dirname, 'routes/task.js'));
-const projectRouter = require(path.join(__dirname, 'routes/project.js'));
+const userRouter = require(path.join(__dirname, 'routes/user'));
+const taskRouter = require(path.join(__dirname, 'routes/task'));
+const projectRouter = require(path.join(__dirname, 'routes/project'));
 
 //serve react files 
 app.use(express.static(index));

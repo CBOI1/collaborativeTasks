@@ -85,5 +85,9 @@ module.exports = {
         .isLength({max: TITLE_MAX_LEN}).withMessage(`Title must be at most ${TITLE_MAX_LEN} characters`),
         body('description').trim().isLength({max: DESC_MAX_LEN}).withMessage(`Description must be at most ${DESC_MAX_LEN} characters`),
         checkValidation
+    ],
+    projectIsValid: [
+        body('title').trim().notEmpty().withMessage('Project must have a title'),
+        checkValidation
     ]
 }
