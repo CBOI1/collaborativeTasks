@@ -3,13 +3,12 @@ import { Form } from "react-router-dom";
 import { useRouteLoaderData } from "react-router-dom";
 import { maxLength } from "zod";
 import { Toaster } from 'react-hot-toast';
+import { styles } from "./style.module.css"
 function Task({isNew}) {
     const [descCharCount, updateDescCharCount] = useState(0);
     const [titleCharCount, updateTitleCharCount] = useState(0);
     const DESC_CHAR_LIMIT = 500;
     const TITLE_CHAR_LIMIT = 100;
-    const inputContainerStyle = "flex flex-col";
-    const inputStyle = "bg-gray-200 rounded-lg border-black/25 p-1 border-1";
     const task = isNew ? {} : useRouteLoaderData("get-task").task;
 
     useEffect(() => {
@@ -22,14 +21,14 @@ function Task({isNew}) {
     return <div className="grow flex flex-col justify-center items-center p-4">
         <Toaster></Toaster>
         <Form method="POST" className="grow flex flex-col justify-center min-w-1/2 gap-4">
-            <div className={inputContainerStyle}>
+            <div className={styles.inputContainerStyle}>
                 <label htmlFor="title">Title:</label>
-                <input type="text" id="title" defaultValue={task.title} name="title" className={inputStyle} onChange={(e) => updateTitleCharCount(e.currentTarget.value.length)} maxLength={`${TITLE_CHAR_LIMIT}`}/>
+                <input type="text" id="title" defaultValue={task.title} name="title" className={styles.inputStyle} onChange={(e) => updateTitleCharCount(e.currentTarget.value.length)} maxLength={`${TITLE_CHAR_LIMIT}`}/>
                 <span>{`characters ${titleCharCount}/${TITLE_CHAR_LIMIT}`}</span>
             </div>
-            <div className={inputContainerStyle + " grow-2 max-h-1/2"}>
+            <div className={styles.inputContainerStyle + " grow-2 max-h-1/2"}>
                 <label htmlFor="description">Description</label>
-                <textarea name="description" id="description" defaultValue={task.description} className={inputStyle + " resize-none grow"} maxLength={`${DESC_CHAR_LIMIT}`} onChange={(e) => updateDescCharCount(e.currentTarget.value.length)}></textarea>
+                <textarea name="description" id="description" defaultValue={task.description} className={styles.inputStyle + " resize-none grow"} maxLength={`${DESC_CHAR_LIMIT}`} onChange={(e) => updateDescCharCount(e.currentTarget.value.length)}></textarea>
                 <span>{`characters ${descCharCount}/${DESC_CHAR_LIMIT}`}</span>
             </div>
             <div>
