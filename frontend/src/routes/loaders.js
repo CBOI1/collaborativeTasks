@@ -9,8 +9,11 @@ const loadUser = async () => {
   return {user: data.user};
 }
 
-const fetchTasks = async () => {
-  const res = await fetch('/api/tasks', { credentials: "include"});
+const fetchTasks = async ({params}) => {
+  if (params.pid === undefined) {
+    return {tasks : null};
+  }
+  const res = await fetch(`/api/projects/${params.pid}/tasks`, { credentials: "include"});
   if (!res.ok) {
     return {tasks: null};
   }
@@ -19,7 +22,7 @@ const fetchTasks = async () => {
 }
 
 const fetchTask = async ({params}) => {
-  const res = await fetch(`/api/tasks/${params.tid}`, {credentials: "include"});
+  const res = await fetch(`/api/projects/${params.pid}/tasks/${params.tid}`, {credentials: "include"});
   if (!res.ok) {
     return {task: null};
   }

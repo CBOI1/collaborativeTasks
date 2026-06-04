@@ -36,13 +36,13 @@ const router = createBrowserRouter([
         Component: ProtectedRoute,
         children : [
           {
-            path: "dashboard",
+            path: "dashboard/:pid?",
             Component: Dashboard,
             loader: fetchTasks,
             id: "dashboard"
           },
           {
-            path: "tasks/:tid/update",
+            path: "projects/:pid/tasks/:tid/update",
             Component: ExistingTask,
             loader: fetchTask,
             id: "get-task",
@@ -55,7 +55,6 @@ const router = createBrowserRouter([
           }
         ]
       }
-      
     ]
   }
 ]);
