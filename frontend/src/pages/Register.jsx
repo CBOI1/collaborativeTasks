@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router";
 import toast, { Toaster } from 'react-hot-toast';
 import { generateErrorToast } from "../utils.jsx";
-import { styles } from "./style.module.css"
+import styles from "./style.module.css"
+import { RHFInput } from "../components/RHFInput.jsx";
 function RegisterForm() {
     const {
         register, 
@@ -35,28 +36,16 @@ function RegisterForm() {
             generateErrorToast(responseData.errors);
         }
     }
-    const getErrorMsg = (prop) => prop?.message ?? "placeholder";
+    const getErrorMsg = (prop) => (prop?.message ?? "placeholder");
     const activeErrorStyling = (error) => (error ? 'opacity-100' : 'opacity-0 pointer-events-none');
 
     return <div className="grow self-stretch flex flex-col justify-center items-center">
         <Toaster></Toaster>
         <form onSubmit={handleSubmit(sendFormData)} className="grow flex flex-col min-w-1/2 gap-8 justify-center">
-                <div className={inputContainerStyle}>
-                    <label htmlFor="email">Email:</label>
-                    <input type="email" id="email" placeholder="johndoe@gmail.com" {...register('email')} className={styles.inputStyle}/>
-                    <span className={styles.errorStyle + activeErrorStyling(errors.email)}>{getErrorMsg(errors.email)}</span>
-                </div>
-                <div className={inputContainerStyle}>
-                    <label htmlFor="password">Password:</label>
-                    <input type="password" id="password" {...register('password')} className={styles.inputStyle}/>
-                    <span className={styles.errorStyle + activeErrorStyling(errors.password)}>{getErrorMsg(errors.password)}</span>
-                </div>
-                <div className={inputContainerStyle}>
-                    <label htmlFor="confirm">Confirm password:</label>
-                    <input type="password" id="confirm" {...register('confirmPassword')} className={styles.inputStyle}/>
-                    <span className={styles.errorStyle + activeErrorStyling(errors.confirmPassword)}>{getErrorMsg(errors.confirmPassword)}</span>
-                </div>
-                <button type="submit" className="self-center">Submit</button>
+            <RHFInput id="email" label="Email:" register={register} error={errors.email}/>
+            <RHFInput id="password" label="Password:" register={register} error={errors.password}/>
+            <RHFInput id="confirmPassword" label="Confirm Password:" register={register} error={errors.confirmPassword}/>
+            <button type="submit" className="self-center">Submit</button>
         </form>
     </div>
 }

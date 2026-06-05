@@ -25,7 +25,7 @@ function NavBar() {
     {!user && <LinkNav to="register" title="Register"/>}
     {!user && <LinkNav to="login" title="Login" /> }
     {user && !isDashboardRoute && <LinkNav to='dashboard/' title='Dashboard'/>}
-    {user && isDashboardRoute && <LinkNav to='/tasks/new' title="Create Task"/>}
+    {user && isDashboardRoute && <LinkNav to='/dashboard/new' title="Create Project"/>}
     {user && <LogOut/>}
   </nav>
 }

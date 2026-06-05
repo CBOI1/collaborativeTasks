@@ -53,4 +53,24 @@ const updateTask = async ({request, params}) => {
     return redirect("/dashboard");
 }
 
-export {updateTask, createTask};
+const createProject = async () => {
+  const formData = await request.formData();
+  const title = formData.get("title");
+  const res = await fetch(`/api/projects/`, {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type" : "application/json"
+      },
+      body : JSON.stringify({
+        title,
+      })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      generateErrorToast(data.errors);
+      return;
+    }
+    return redirect("/dashboard");
+}
+export {updateTask, createTask, createProject};

@@ -7,11 +7,9 @@
     color: rgb(239 68 68);
 }
 
-const inputStyle = "border-1";
 .inputStyle {
     background-color: rgb(229 231 235);
     border-radius: 0.5rem;
     border-color: rgb(0 0 0 / 0.25);
-    padding: 1rem;
     border-width: 1px;
 }

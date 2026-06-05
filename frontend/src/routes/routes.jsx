@@ -2,9 +2,10 @@ import { createBrowserRouter, Outlet } from "react-router-dom";
 import Register from "../pages/Register";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard"
+import Project from "../pages/Project";
 import { NewTask, ExistingTask } from "../pages/Task";
-import { loadUser, fetchTask, fetchTasks } from "./loaders";
-import { createTask, updateTask } from "./actions";
+import { loadUser, fetchTask, fetchTasks} from "./loaders";
+import { createTask, updateTask, createProject } from "./actions";
 import { ProtectedRoute, UnauthRoute } from "../components/RouteGuards";
 import RootLayout from "../Layouts/RootLayout";
 
@@ -40,6 +41,11 @@ const router = createBrowserRouter([
             Component: Dashboard,
             loader: fetchTasks,
             id: "dashboard"
+          },
+          {
+            path: "dashboard/new",
+            Component: Project,
+            action: createProject
           },
           {
             path: "projects/:pid/tasks/:tid/update",
