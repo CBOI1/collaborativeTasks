@@ -26,7 +26,6 @@ function Task({isNew}) {
                 <input type="text" id="title" defaultValue={task.title} name="title" className={styles.inputStyle} onChange={(e) => updateTitleCharCount(e.currentTarget.value.length)} maxLength={`${TITLE_CHAR_LIMIT}`}/>
                 <span>{`characters ${titleCharCount}/${TITLE_CHAR_LIMIT}`}</span>
             </div>
-            <Te
             <div className={styles.inputContainer+ " grow-2 max-h-1/2"}>
                 <label htmlFor="description">Description</label>
                 <textarea name="description" id="description" defaultValue={task.description} className={styles.inputStyle + " resize-none grow"} maxLength={`${DESC_CHAR_LIMIT}`} onChange={(e) => updateDescCharCount(e.currentTarget.value.length)}></textarea>

@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Toaster, toast } from "react-hot-toast";
 import { useRouteLoaderData, useNavigate, useRevalidator} from "react-router";
 import { generateErrorToast } from "../utils.jsx";
-import { RHFInput } from "../components/RHFInput.jsx";
+import { RHFInput } from "../components/FormInputs.jsx";
 
 const login = async (credentials) => {
     const res = await fetch('/api/login', {
@@ -37,8 +37,8 @@ function LoginForm() {
     return <div className="flex flex-col self-stretch grow items-center">
         <Toaster></Toaster>
         <form onSubmit={handleSubmit(handler)} className="grow flex flex-col gap-8 justify-center min-w-1/2">
-            <RHFInput label={"Email:"} id={"email"} register={register} error={errors.email}/>
-            <RHFInput label={"Password:"} id={"password"} register={register} error={errors.password}/>
+            <RHFInput label={"Email:"} id={"email"} type="text" register={register} error={errors.email}/>
+            <RHFInput label={"Password:"} id={"password"} type="password" register={register} error={errors.password}/>
             <button type="submit" className="self-center">Submit</button>
         </form>
     </div>

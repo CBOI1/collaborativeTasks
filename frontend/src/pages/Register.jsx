@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import toast, { Toaster } from 'react-hot-toast';
 import { generateErrorToast } from "../utils.jsx";
 import styles from "./style.module.css"
-import { RHFInput } from "../components/RHFInput.jsx";
+import { RHFInput } from "../components/FormInputs.jsx";
 function RegisterForm() {
     const {
         register, 
@@ -42,9 +42,9 @@ function RegisterForm() {
     return <div className="grow self-stretch flex flex-col justify-center items-center">
         <Toaster></Toaster>
         <form onSubmit={handleSubmit(sendFormData)} className="grow flex flex-col min-w-1/2 gap-8 justify-center">
-            <RHFInput id="email" label="Email:" register={register} error={errors.email}/>
-            <RHFInput id="password" label="Password:" register={register} error={errors.password}/>
-            <RHFInput id="confirmPassword" label="Confirm Password:" register={register} error={errors.confirmPassword}/>
+            <RHFInput id="email" label="Email:" register={register} type="text" error={errors.email}/>
+            <RHFInput id="password" label="Password:" type="password" register={register} error={errors.password}/>
+            <RHFInput id="confirmPassword" label="Confirm Password:" type="password" register={register} error={errors.confirmPassword}/>
             <button type="submit" className="self-center">Submit</button>
         </form>
     </div>
