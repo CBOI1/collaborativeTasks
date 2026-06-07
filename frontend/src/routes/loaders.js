@@ -11,14 +11,14 @@ const loadUser = async () => {
 
 const fetchTasks = async ({params}) => {
   if (params.pid === undefined) {
-    return {tasks : null};
+    return {pid: undefined, tasks : null};
   }
   const res = await fetch(`/api/projects/${params.pid}/tasks`, { credentials: "include"});
   if (!res.ok) {
     return {tasks: null};
   }
   const tasks = await res.json();
-  return {tasks};
+  return {pid : params.pid, tasks};
 }
 
 const fetchTask = async ({params}) => {

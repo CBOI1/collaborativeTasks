@@ -52,7 +52,7 @@ function Modal({title, confirmText, onConfirm, onClose, isOpen, id}) {
     </dialog>
 }
 
-function MenuOptions({tid, options, onOutsideClick, setTidToDelete}) {
+function MenuOptions({pid, tid, options, onOutsideClick, setTidToDelete}) {
     const menuRef = useRef(null);
     const {revalidate} = useRevalidator();
     useDetectOutsideClick(menuRef, onOutsideClick);
@@ -64,7 +64,7 @@ function MenuOptions({tid, options, onOutsideClick, setTidToDelete}) {
             <FiTrash2></FiTrash2>
         </li >
         <li >
-            <Link to={`/tasks/${tid}/update`} className="text-blue-400 flex justify-between gap-1">
+            <Link to={`/projects/${pid}/tasks/${tid}/update`} className="text-blue-400 flex justify-between gap-1">
                 {options.edit.name}
                 <FiEdit></FiEdit>
             </Link>
@@ -72,15 +72,15 @@ function MenuOptions({tid, options, onOutsideClick, setTidToDelete}) {
     </ul>
 }
 
-function ActiveMenu({tid, setActiveTid, setTidToDelete}) {
+function ActiveMenu({pid, tid, setActiveTid, setTidToDelete}) {
     function handleOutsideTap() {
         setActiveTid(null);
     }
-    return <MenuOptions tid={tid} options={options} onOutsideClick={handleOutsideTap} setTidToDelete={setTidToDelete}></MenuOptions>
+    return <MenuOptions pid={pid} tid={tid} options={options} onOutsideClick={handleOutsideTap} setTidToDelete={setTidToDelete}></MenuOptions>
 }
 
 //grid grid-cols-3 grid-rows-3 
-function TaskPreview({task, setActiveTid, activeTid, setTidToDelete}) {
+function TaskPreview({pid, task, setActiveTid, activeTid, setTidToDelete}) {
     return <li className="shrink-0 grid grid-cols-[1fr_max-content] grid-rows-[1fr_2fr] bg-gray-200 rounded-lg p-1">
         <p className="text-l font-bold line-clamp-1">{task.title}</p>
         <p className="row-start-2 col-start-1 line-clamp-2">{task.description}</p>
@@ -90,17 +90,18 @@ function TaskPreview({task, setActiveTid, activeTid, setTidToDelete}) {
                     setActiveTid(task.id);
                 }} className="shrink-0">
             </FiMoreVertical>
-            {activeTid === task.id && <ActiveMenu tid={task.id} setActiveTid={setActiveTid} setTidToDelete={setTidToDelete}></ActiveMenu>}
+            {activeTid === task.id && <ActiveMenu pid={pid} tid={task.id} setActiveTid={setActiveTid} setTidToDelete={setTidToDelete}></ActiveMenu>}
         </div>
     </li>
 }
 
 function DashboardContent() {
     const revalidator = useRevalidator();
-    const {tasks} = useRouteLoaderData("dashboard");
+    const {tasks, pid} = useRouteLoaderData('dashboard');
     const [activeTid, setActiveTid] = useState(null);
     const [tidToDelete, setTidToDelete] = useState(null);
     const taskItems = tasks !== null ? tasks.map(t => <TaskPreview 
+        pid={pid}
         task={t} 
         key={t.id} 
         setActiveTid={setActiveTid} 

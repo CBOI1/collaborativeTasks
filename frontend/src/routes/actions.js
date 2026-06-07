@@ -53,7 +53,7 @@ const updateTask = async ({request, params}) => {
     return redirect("/dashboard");
 }
 
-const createProject = async () => {
+const createProject = async ({request}) => {
   const formData = await request.formData();
   const title = formData.get("title");
   const res = await fetch(`/api/projects/`, {
