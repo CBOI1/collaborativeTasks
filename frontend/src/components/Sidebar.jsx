@@ -36,7 +36,10 @@ function Sidebar({activePid, setActivePid}) {
         <ul style={{
             display: isCollapsed ? "none" : "block",
         }}>
-            {projects?.map(p => <NavLink to={`/dashboard/${p.id}`}>{p.title}</NavLink>)}
+            {
+                projects?.map(p => <li><NavLink to={`/dashboard/${p.id}`}>{p.title}</NavLink></li>)
+            }
+       
         </ul>
     </div>
 }

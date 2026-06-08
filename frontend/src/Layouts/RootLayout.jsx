@@ -21,7 +21,7 @@ function LogOut() {
 function NavBar() {
   const {pid} = useParams();
   const {user} = useRouteLoaderData("root");
-  const isDashboardRoute = useMatch('/dashboard/:pid');
+  const isDashboardRoute = useMatch('/dashboard/:pid?');
   return <nav className="flex justify-around p-2">
     {!user && <LinkNav to="register" title="Register"/>}
     {!user && <LinkNav to="login" title="Login" /> }
