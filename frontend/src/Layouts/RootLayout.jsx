@@ -26,7 +26,7 @@ function NavBar() {
     {!user && <LinkNav to="register" title="Register"/>}
     {!user && <LinkNav to="login" title="Login" /> }
     {user && !isDashboardRoute && <LinkNav to={pid !== undefined ? `dashboard/${pid}` : '/dashboard'} title='Dashboard'/>}
-    {user && isDashboardRoute && <LinkNav to='/dashboard/new' title="Create Project"/>}
+    {user && isDashboardRoute && <LinkNav to='/projects/new' title="Create Project"/>}
     {user && <LogOut/>}
   </nav>
 }

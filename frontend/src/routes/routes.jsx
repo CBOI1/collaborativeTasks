@@ -43,7 +43,7 @@ const router = createBrowserRouter([
             id: "dashboard"
           },
           {
-            path: "dashboard/new",
+            path: "projects/new",
             Component: Project,
             action: createProject
           },

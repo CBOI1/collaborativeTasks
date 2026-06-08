@@ -37,7 +37,19 @@ function Sidebar({activePid, setActivePid}) {
             display: isCollapsed ? "none" : "block",
         }}>
             {
-                projects?.map(p => <li><NavLink to={`/dashboard/${p.id}`}>{p.title}</NavLink></li>)
+                projects?.map(p => {
+                    return <li>
+                        <NavLink 
+                            to={`/dashboard/${p.id}`}
+                            className={({ isActive }) => {
+                                return isActive ? 'text-blue-700 font-extrabold' : 'bg-transparent';
+                            }}
+                            end
+                        >
+                            {p.title}
+                        </NavLink>
+                    </li>
+                })
             }
        
         </ul>
