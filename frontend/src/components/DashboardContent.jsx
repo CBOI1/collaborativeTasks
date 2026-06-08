@@ -2,87 +2,42 @@ import { NavLink, useRouteLoaderData} from "react-router-dom";
 import { useState, useEffect, useRef} from "react";
 import { FiMoreVertical, FiTrash2, FiEdit, FiXCircle } from "react-icons/fi";
 import { VscAdd } from "react-icons/vsc"
-import { useRevalidator } from "react-router-dom";
+import { useRevalidator, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { _null } from "zod/v4/core";
+import useDetectOutsideClick from "../hooks/useDetectOutsideClick";
+import Modal from "./Modal";
 
-const options = {
-    "delete" : {
-        name: "Delete",
-        operation: async (pid, tid) => {
-            await fetch(`/api/projects/${pid}/tasks/${tid}`, {
-                credentials: "include",
-                method: "DELETE"
-            });
-        },
-    },
-    "edit" : {
-            name: "Edit",
-    }
-}
-
-function useDetectOutsideClick(ref, onOutsideClick) {
-    useEffect(() => {
-        function handler(e) {
-            if (ref.current && !ref.current.contains(e.target)) {
-                onOutsideClick()
-            }
-        }
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler)
-    }, [ref, onOutsideClick]);
-}
-
-function Modal({title, confirmText, onConfirm, onClose, isOpen, id}) {
-    const dialogRef = useRef(null);
-    useEffect(() => {
-        if (isOpen) {
-            dialogRef.current.showModal()
-        }
-        if (!isOpen) {
-            dialogRef.current.close();
-        }
-    }, [isOpen]);
-    return <dialog id={id} ref={dialogRef} className="fixed top-1/2 right-auto bottom-auto left-1/2 -translate-1/2 p-5 open:flex flex-col gap-2">
-        <div className="p-2 text-rose-500 shrink-0 flex flex-row justify-end"><FiXCircle onClick={onClose}></FiXCircle></div>
-        <h2>{title}</h2>
-        <button onClick={async () => {
-            await onConfirm();
-        }}>
-          {confirmText}  
-        </button>
-    </dialog>
-}
-
-function MenuOptions({pid, tid, options, onOutsideClick, setTidToDelete}) {
+function TaskMenuOptions({onOutsideClick, children}) {
     const menuRef = useRef(null);
     const {revalidate} = useRevalidator();
     useDetectOutsideClick(menuRef, onOutsideClick);
     return <ul ref={menuRef} className="bg-gray-300 text-black p-2 rounded-full absolute -right-30 -top-6 px-4">
-        <li key={options.delete.name} className="text-red-400 flex justify-between gap-1 border-b-1 border-gray-500" onClick={() => {
-            setTidToDelete(tid);
-        }}>
-            {options.delete.name}
-            <FiTrash2></FiTrash2>
-        </li >
-        <li >
-            <Link to={`/projects/${pid}/tasks/${tid}/update`} className="text-blue-400 flex justify-between gap-1">
-                {options.edit.name}
-                <FiEdit></FiEdit>
-            </Link>
-        </li>
+        {children}
     </ul>
 }
 
-function ActiveMenu({pid, tid, setActiveTid, setTidToDelete}) {
-    function handleOutsideTap() {
-        setActiveTid(null);
-    }
-    return <MenuOptions pid={pid} tid={tid} options={options} onOutsideClick={handleOutsideTap} setTidToDelete={setTidToDelete}></MenuOptions>
-}
-
-
 //grid grid-cols-3 grid-rows-3 
-function TaskPreview({pid, task, setActiveTid, activeTid, setTidToDelete}) {
+function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
+    const navigate = useNavigate();
+    const options = [
+        {
+            name: "Edit",
+            icon: <FiEdit></FiEdit>,
+            styling: "text-green-800",
+            action: () => {
+                navigate(`/projects/${pid}/tasks/${task.id}/update`);
+            }
+        },
+        {
+            name: "Delete",
+            icon: <FiTrash2></FiTrash2>,
+            styling: "text-red-400",
+            action: () => {
+                setModalIsOpen(true)
+            }
+        }
+    ]
     const taskItemStyling = "shrink-0  bg-gray-200 rounded-lg p-1 grid grid-cols-[1fr_max-content] grid-rows-[1fr_2fr]"
     return <li className={taskItemStyling}>
         <p className="text-l font-bold line-clamp-1">{task.title}</p>
@@ -93,12 +48,21 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setTidToDelete}) {
                     setActiveTid(task.id);
                 }} className="shrink-0">
             </FiMoreVertical>
-            {activeTid === task.id && <ActiveMenu pid={pid} tid={task.id} setActiveTid={setActiveTid} setTidToDelete={setTidToDelete}></ActiveMenu>}
+            {activeTid === task.id && <TaskMenuOptions
+                onOutsideClick={() => setActiveTid(null)}
+            >
+                {options.map(option => {
+                    return <li onClick={option.action} className={`flex cursor-pointer ${option.styling}`}>
+                        <span className="grow">{option.name}</span>
+                        {option.icon}
+                    </li>
+                })}
+            </TaskMenuOptions>}
         </div>
     </li>
 }
 
-function TaskList({pid, tasks, activeTid, setActiveTid, setTidToDelete}) {
+function TaskList({pid, tasks, activeTid, setActiveTid, setModalIsOpen}) {
     const createTaskItemStyling = "shrink-0 self-stretch flex bg-gray-200 rounded-lg p-1 space-between"
     return <ul className="flex flex-col gap-2 min-w-1/2 grow">
             <li className={createTaskItemStyling}>
@@ -112,7 +76,7 @@ function TaskList({pid, tasks, activeTid, setActiveTid, setTidToDelete}) {
                     key={t.id} 
                     setActiveTid={setActiveTid} 
                     activeTid={activeTid}
-                    setTidToDelete={setTidToDelete}
+                    setModalIsOpen={setModalIsOpen}
                     />
                 )
             }
@@ -123,26 +87,29 @@ function DashboardContent() {
     const revalidator = useRevalidator();
     const {tasks, pid} = useRouteLoaderData('dashboard');
     const [activeTid, setActiveTid] = useState(null);
-    const [tidToDelete, setTidToDelete] = useState(null);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
     const displayTasks = <div className="grow flex flex-col justify-center items-center">
         <TaskList 
             pid={pid}
             tasks={tasks} 
             activeTid={activeTid} 
             setActiveTid={setActiveTid}
-            setTidToDelete={setTidToDelete}
+            setModalIsOpen={setModalIsOpen}
         />
         <Modal 
             title={"Are you certain you want to delete this task?"}
             confirmText={"Delete"}
             onConfirm={async () => {
                 //onConfirm is responsible for making sure isOpen becomes false
-                await options.delete.operation(pid, tidToDelete);
-                setTidToDelete(null);
+                await fetch(`/api/projects/${pid}/tasks/${activeTid}`, {
+                credentials: "include",
+                method: "DELETE"
+            });
+                setModalIsOpen(false)
                 revalidator.revalidate();
             }}
-            isOpen={tidToDelete !== null}
-            onClose={() => setTidToDelete(null)}
+            isOpen={modalIsOpen}
+            onClose={() => setModalIsOpen(false)}
             id={'delete-modal'}
         ></Modal>
     </div>
