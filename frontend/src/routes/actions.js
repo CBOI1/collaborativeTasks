@@ -24,7 +24,7 @@ const createTask = async ({request, params}) => {
       generateErrorToast(data.errors);
       return;
     }
-    return redirect("/dashboard");
+    return redirect(`/dashboard/${pid}`);
 }
 const updateTask = async ({request, params}) => {
     const formData = await request.formData();

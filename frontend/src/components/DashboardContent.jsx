@@ -1,6 +1,7 @@
-import { useRouteLoaderData} from "react-router-dom";
+import { NavLink, useRouteLoaderData} from "react-router-dom";
 import { useState, useEffect, useRef} from "react";
 import { FiMoreVertical, FiTrash2, FiEdit, FiXCircle } from "react-icons/fi";
+import { VscAdd } from "react-icons/vsc"
 import { useRevalidator } from "react-router-dom";
 import { Link } from "react-router-dom";
 
@@ -79,9 +80,11 @@ function ActiveMenu({pid, tid, setActiveTid, setTidToDelete}) {
     return <MenuOptions pid={pid} tid={tid} options={options} onOutsideClick={handleOutsideTap} setTidToDelete={setTidToDelete}></MenuOptions>
 }
 
+
 //grid grid-cols-3 grid-rows-3 
 function TaskPreview({pid, task, setActiveTid, activeTid, setTidToDelete}) {
-    return <li className="shrink-0 grid grid-cols-[1fr_max-content] grid-rows-[1fr_2fr] bg-gray-200 rounded-lg p-1">
+    const taskItemStyling = "shrink-0  bg-gray-200 rounded-lg p-1 grid grid-cols-[1fr_max-content] grid-rows-[1fr_2fr]"
+    return <li className={taskItemStyling}>
         <p className="text-l font-bold line-clamp-1">{task.title}</p>
         <p className="row-start-2 col-start-1 line-clamp-2">{task.description}</p>
         <div className="relative row-span-full col-start-2 self-center justify-center">
@@ -95,24 +98,40 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setTidToDelete}) {
     </li>
 }
 
+function TaskList({pid, tasks, activeTid, setActiveTid, setTidToDelete}) {
+    const createTaskItemStyling = "shrink-0 self-stretch flex bg-gray-200 rounded-lg p-1 space-between"
+    return <ul className="flex flex-col gap-2 min-w-1/2 grow">
+            <li className={createTaskItemStyling}>
+                <NavLink to={`/projects/${pid}/tasks/new`} className={"grow"}>Create Task</NavLink>
+                <VscAdd className="row-span-full col-start-2 self-center"></VscAdd>
+            </li>
+            {
+                tasks.map(t => <TaskPreview 
+                    pid={pid}
+                    task={t} 
+                    key={t.id} 
+                    setActiveTid={setActiveTid} 
+                    activeTid={activeTid}
+                    setTidToDelete={setTidToDelete}
+                    />
+                )
+            }
+        </ul>
+}
+
 function DashboardContent() {
     const revalidator = useRevalidator();
     const {tasks, pid} = useRouteLoaderData('dashboard');
     const [activeTid, setActiveTid] = useState(null);
     const [tidToDelete, setTidToDelete] = useState(null);
-    const taskItems = tasks !== null ? tasks.map(t => <TaskPreview 
-        pid={pid}
-        task={t} 
-        key={t.id} 
-        setActiveTid={setActiveTid} 
-        activeTid={activeTid}
-        setTidToDelete={setTidToDelete}
-        ></TaskPreview>
-    ) : <></>
     const displayTasks = <div className="grow flex flex-col justify-center items-center">
-        <ul className="flex flex-col gap-2 min-w-1/2 grow">
-            {taskItems}
-        </ul>
+        <TaskList 
+            pid={pid}
+            tasks={tasks} 
+            activeTid={activeTid} 
+            setActiveTid={setActiveTid}
+            setTidToDelete={setTidToDelete}
+        />
         <Modal 
             title={"Are you certain you want to delete this task?"}
             confirmText={"Delete"}

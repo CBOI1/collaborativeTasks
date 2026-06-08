@@ -55,7 +55,7 @@ const router = createBrowserRouter([
             action: updateTask
           },
           {
-            path: "tasks/new",
+            path: "projects/:pid/tasks/new",
             Component: NewTask,
             action: createTask
           }

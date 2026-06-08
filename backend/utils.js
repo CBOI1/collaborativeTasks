@@ -18,6 +18,9 @@ const isAuthenticated = (req, res, next) =>  {
 
 //all paths will provide a pid as a route parameter
 const userOwnsProject = async (req, res, next) => {
+    if (req.params.pid === 'undefined') {
+        return res.status(httpCodes.BAD_REQUEST).json({});
+    }
     const pRecord = await db.project.findUnique({
         where : {
             id : parseIntBase10(req.params.pid),
