@@ -8,8 +8,8 @@ import { Link } from "react-router-dom";
 const options = {
     "delete" : {
         name: "Delete",
-        operation: async (tid) => {
-            await fetch(`/api/tasks/${tid}/delete`, {
+        operation: async (pid, tid) => {
+            await fetch(`/api/projects/${pid}/tasks/${tid}`, {
                 credentials: "include",
                 method: "DELETE"
             });
@@ -137,7 +137,7 @@ function DashboardContent() {
             confirmText={"Delete"}
             onConfirm={async () => {
                 //onConfirm is responsible for making sure isOpen becomes false
-                await options.delete.operation(tidToDelete);
+                await options.delete.operation(pid, tidToDelete);
                 setTidToDelete(null);
                 revalidator.revalidate();
             }}
