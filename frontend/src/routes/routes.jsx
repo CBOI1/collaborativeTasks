@@ -4,8 +4,8 @@ import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard"
 import Project from "../pages/Project";
 import { NewTask, ExistingTask } from "../pages/Task";
-import { loadUser, fetchTask, fetchTasks} from "./loaders";
-import { createTask, updateTask, createProject } from "./actions";
+import { loadUser, fetchTask, fetchTasks, fetchProject} from "./loaders";
+import { createTask, updateTask, createProject, updateProject } from "./actions";
 import { ProtectedRoute, UnauthRoute } from "../components/RouteGuards";
 import RootLayout from "../Layouts/RootLayout";
 
@@ -46,6 +46,12 @@ const router = createBrowserRouter([
             path: "projects/new",
             Component: Project,
             action: createProject
+          },
+          {
+            path: 'projects/:pid/update',
+            Component: Project,
+            loader: fetchProject,
+            action: updateProject
           },
           {
             path: "projects/:pid/tasks/:tid/update",

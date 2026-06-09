@@ -5,17 +5,9 @@ import { VscAdd } from "react-icons/vsc"
 import { useRevalidator, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { _null } from "zod/v4/core";
-import useDetectOutsideClick from "../hooks/useDetectOutsideClick";
+import useDetectOutsideClick from "../hooks/useDetectOutsideClick.jsx";
 import Modal from "./Modal";
-
-function TaskMenuOptions({onOutsideClick, children}) {
-    const menuRef = useRef(null);
-    const {revalidate} = useRevalidator();
-    useDetectOutsideClick(menuRef, onOutsideClick);
-    return <ul ref={menuRef} className="bg-gray-300 text-black p-2 rounded-full absolute -right-30 -top-6 px-4">
-        {children}
-    </ul>
-}
+import MenuOptions from "./MenuOptions.jsx";
 
 //grid grid-cols-3 grid-rows-3 
 function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
@@ -34,7 +26,7 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
             icon: <FiTrash2></FiTrash2>,
             styling: "text-red-400",
             action: () => {
-                setModalIsOpen(true)
+                setModalIsOpen(true);
             }
         }
     ]
@@ -44,12 +36,15 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
         <p className="row-start-2 col-start-1 line-clamp-2">{task.description}</p>
         <div className="relative row-span-full col-start-2 self-center justify-center">
             <FiMoreVertical onClick={ 
-                () => {
+                (e) => {
                     setActiveTid(task.id);
+                    //stop bubbling to prevent outside click from immediately clearing active task
+                    e.stopPropagation();
                 }} className="shrink-0">
             </FiMoreVertical>
-            {activeTid === task.id && <TaskMenuOptions
+            {activeTid === task.id && <MenuOptions
                 onOutsideClick={() => setActiveTid(null)}
+                className={"bg-gray-300 text-black p-2 rounded-full absolute -right-30 -top-6 px-4"}
             >
                 {options.map(option => {
                     return <li onClick={option.action} className={`flex cursor-pointer ${option.styling}`}>
@@ -57,7 +52,7 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
                         {option.icon}
                     </li>
                 })}
-            </TaskMenuOptions>}
+            </MenuOptions>}
         </div>
     </li>
 }

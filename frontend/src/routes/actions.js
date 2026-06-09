@@ -73,4 +73,7 @@ const createProject = async ({request}) => {
     }
     return redirect("/dashboard");
 }
-export {updateTask, createTask, createProject};
+const updateProject = async ({request, params}) => {
+  
+}
+export {updateTask, createTask, createProject, updateProject};

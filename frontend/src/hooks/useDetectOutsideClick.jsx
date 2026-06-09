@@ -7,7 +7,7 @@ function useDetectOutsideClick(ref, onOutsideClick) {
                 onOutsideClick()
             }
         }
-        document.addEventListener('mousedown', handler);
+        document.addEventListener('click', handler);
         return () => document.removeEventListener('mousedown', handler)
     }, [ref, onOutsideClick]);
 }

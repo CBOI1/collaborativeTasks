@@ -30,4 +30,8 @@ const fetchTask = async ({params}) => {
   return {task};
 }
 
-export {loadUser, fetchTask, fetchTasks};
+const fetchProject = async({params}) => {
+  console.log("hello");
+}
+
+export {loadUser, fetchTask, fetchTasks, fetchProject};
