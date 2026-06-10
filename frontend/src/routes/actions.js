@@ -1,79 +1,59 @@
 import { redirect } from "react-router-dom";
 import {toast} from 'react-hot-toast';
 import { generateErrorToast } from "../utils.jsx";
-const createTask = async ({request, params}) => {
-    const pid = params.pid;
-    const formData = await request.formData();
-    const title = formData.get("title");
-    const description = formData.get("description");
-    const finished = formData.get("finished");
-    const res = await fetch(`/api/projects/${pid}/tasks/`, {
-      credentials: "include",
-      method: "POST",
-      headers: {
-        "Content-Type" : "application/json"
-      },
-      body : JSON.stringify({
-        title,
-        description,
-        finished: (finished ? true : false)
-      })
-    });
-    if (!res.ok) {
-      const data = await res.json();
-      generateErrorToast(data.errors);
-      return;
-    }
-    return redirect(`/dashboard/${pid}`);
-}
-const updateTask = async ({request, params}) => {
-    const formData = await request.formData();
-    const tid = params.tid;
-    const pid = params.pid;
-    const title = formData.get("title");
-    const description = formData.get("description");
-    const finished = formData.get("finished");
-    const res = await fetch(`/api/projects/${pid}/tasks/${tid}/`, {
-      credentials: "include",
-      method: "PATCH",
-      headers: {
-        "Content-Type" : "application/json"
-      },
-      body : JSON.stringify({
-        title,
-        description,
-        finished: (finished ? true : false)
-      })
-    });
-    if (!res.ok) {
-      const data = await res.json();
-      generateErrorToast(data.errors);
-      return;
-    }
-    return redirect("/dashboard");
-}
 
-const createProject = async ({request}) => {
-  const formData = await request.formData();
-  const title = formData.get("title");
-  const res = await fetch(`/api/projects/`, {
+const taskFormDataToObj = (fd) => ({
+      title: fd.get("title"),
+      description: fd.get("description"),
+      finished: fd.get("finished") ? true : false
+  });
+
+
+function createAction(method, createUrl, redirectUrl, makeBody, ) {
+  return async ({request, params}) => {
+    const formData = await request.formData();
+    const res = await fetch(createUrl(params), {
       credentials: "include",
-      method: "POST",
+      method: method,
       headers: {
         "Content-Type" : "application/json"
       },
-      body : JSON.stringify({
-        title,
-      })
-    });
+      body : JSON.stringify(makeBody(formData))
+    })
     if (!res.ok) {
       const data = await res.json();
       generateErrorToast(data.errors);
       return;
     }
-    return redirect("/dashboard");
+    return redirect(redirectUrl(params));
+  }
 }
-const updateProject = async ({request, params}) => {
-  
-}
+const createTask = createAction(
+  "POST", 
+  params => `/api/projects/${params.pid}/tasks/`,
+  params => `/dashboard/${params.pid}`,
+  taskFormDataToObj
+)
+
+const updateTask = createAction(
+  "PATCH",
+  params => `/api/projects/${params.pid}/tasks/${params.tid}`,
+  params => `/dashboard/${params.pid}`,
+  taskFormDataToObj
+);
+
+const createProject = createAction(
+  "POST",
+  params => "/api/projects/",
+  params => "/dashboard",
+  fd => ({title : fd.get("title")})
+)
+
+const updateProject = createAction(
+  "PATCH",
+  params => `/api/projects/${params.pid}`,
+  params => `dashboard/${params.pid}`,
+  fd => ({title : fd.get("title")})
+);
+
 export {updateTask, createTask, createProject, updateProject};
