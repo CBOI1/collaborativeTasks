@@ -8,7 +8,6 @@ const taskFormDataToObj = (fd) => ({
       finished: fd.get("finished") ? true : false
   });
 
-
 function createAction(method, createUrl, redirectUrl, makeBody, ) {
   return async ({request, params}) => {
     const formData = await request.formData();

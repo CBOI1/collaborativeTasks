@@ -51,7 +51,8 @@ const router = createBrowserRouter([
             path: 'projects/:pid/update',
             Component: Project,
             loader: fetchProject,
-            action: updateProject
+            action: updateProject,
+            id: "project-info"
           },
           {
             path: "projects/:pid/tasks/:tid/update",

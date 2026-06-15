@@ -30,6 +30,18 @@ projectRouter.get('/projects', isAuthenticated, async (req, res) => {
     });
 });
 
+//read a specific project from a user
+
+projectRouter.get('/projects/:pid', isAuthenticated, async (req, res) => {
+    const project = await db.project.findUnique({
+        where : {
+            ownerId: req.session.userId,
+            id: parseIntBase10(req.params.pid)
+        }
+    })
+    return res.json(project);
+});
+
 projectRouter.patch('/projects/:pid', userCanAccessProject, projectIsValid, async (req, res) => {
     await db.project.update({
         where: {
