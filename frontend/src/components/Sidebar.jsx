@@ -42,7 +42,7 @@ function Sidebar() {
         }}>
             {
                 projects?.map(p => {
-                    return <li>
+                    return <li key={p.id}>
                         <NavLink
                             onClick={() => setActivePid(p.id)} 
                             to={`/dashboard/${p.id}`}

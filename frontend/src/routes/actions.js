@@ -55,7 +55,7 @@ const createProject = createAction(
 const updateProject = createAction(
   "PATCH",
   params => `/api/projects/${params.pid}`,
-  params => `dashboard/${params.pid}`,
+  params => `/dashboard/${params.pid}`,
   fd => ({title : fd.get("title")})
 );
 

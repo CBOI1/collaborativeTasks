@@ -86,7 +86,7 @@ function DashboardContent() {
     const displayTasks = <div className="grow flex flex-col justify-center items-center">
         <TaskList 
             pid={pid}
-            tasks={tasks} 
+            tasks={tasks ?? []} 
             activeTid={activeTid} 
             setActiveTid={setActiveTid}
             setModalIsOpen={setModalIsOpen}
@@ -108,7 +108,7 @@ function DashboardContent() {
             id={'delete-modal'}
         ></Modal>
     </div>
-    return tasks !== null ? displayTasks : <p>No active project is selected</p>
+    return tasks !== null ? displayTasks : <p>No available tasks</p>;
 }
 
 export default DashboardContent;
