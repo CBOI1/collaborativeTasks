@@ -1,37 +1,18 @@
 import styles from "./Sidebar.module.css";
 import { FiChevronLeft, FiChevronRight, FiMoreVertical, FiEdit, FiTrash2} from "react-icons/fi";
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate, useRevalidator } from "react-router-dom";
+import { NavLink, useNavigate, useRevalidator, useFetcher, useRouteLoaderData } from "react-router-dom";
 import Modal from "./Modal";
 import useDetectOutsideClick from "../hooks/useDetectOutsideClick.jsx";
 import MenuOptions from "./MenuOptions.jsx";
-function useProjects() {
-    const [projects, updateProjects] = useState([]);
-    useEffect(() => {
-        let ignoreData = false;
-        const fetchProjectData = async () => {
-            const res = await fetch('/api/projects', {credentials: "include"});
-            if (!ignoreData && !res.ok) {
-                updateProjects(null);
-            }
-            const data = await res.json();
-            if (!ignoreData) {
-                updateProjects(data.projects)
-            }
-        }
-        fetchProjectData();
-        return () => {
-            ignoreData = true;
-        }
-    }, []);
-    return projects;
-}
+
 
 function Sidebar() {
+    const fetcher = useFetcher();
     const [activePid, setActivePid] = useState(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const projects = useProjects();
+    const { projects } = useRouteLoaderData("projects") ?? {projects: []}
     const navigate = useNavigate();
     const options = [
         {
@@ -88,9 +69,14 @@ function Sidebar() {
         <Modal
             title={"Do you want to delete this project"}
             confirmText={"Confirm"}
-            onConfirm={() => {
+            onConfirm={async () => {
                 console.log("Hello from delete modal");
+                fetcher.submit(null, {
+                    method: "delete",
+                    action: `/projects/${activePid}/delete`
+                })
                 setModalIsOpen(false);
+                setActivePid(null);
             }}
             onClose={() => setModalIsOpen(false)}
             isOpen={modalIsOpen}

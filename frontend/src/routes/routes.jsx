@@ -4,10 +4,11 @@ import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard"
 import Project from "../pages/Project";
 import { NewTask, ExistingTask } from "../pages/Task";
-import { loadUser, fetchTask, fetchTasks, fetchProject} from "./loaders";
-import { createTask, updateTask, createProject, updateProject } from "./actions";
+import { loadUser, fetchTask, fetchTasks, fetchProject, fetchProjects} from "./loaders";
+import { createTask, updateTask, createProject, updateProject, deleteProject } from "./actions";
 import { ProtectedRoute, UnauthRoute } from "../components/RouteGuards";
 import RootLayout from "../Layouts/RootLayout";
+import Sidebar from "../components/Sidebar";
 
 const router = createBrowserRouter([
   {
@@ -37,10 +38,18 @@ const router = createBrowserRouter([
         Component: ProtectedRoute,
         children : [
           {
-            path: "dashboard/:pid?",
-            Component: Dashboard,
+            path: 'dashboard/:pid?',
             loader: fetchTasks,
-            id: "dashboard"
+            id: "dashboard",
+            Component: Dashboard,
+            children: [
+              {
+                index: true,
+                Component: Sidebar,
+                loader: fetchProjects,
+                id: 'projects'
+              }
+            ]
           },
           {
             path: "projects/new",
@@ -65,6 +74,10 @@ const router = createBrowserRouter([
             path: "projects/:pid/tasks/new",
             Component: NewTask,
             action: createTask
+          },
+          {
+            path: "projects/:pid/delete",
+            action: deleteProject
           }
         ]
       }

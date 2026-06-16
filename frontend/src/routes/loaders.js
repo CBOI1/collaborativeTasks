@@ -15,6 +15,7 @@ const fetchResource = (urlConstructor, resourceName) => {
 const loadUser = fetchResource((params) => '/api/me', 'user');
 const fetchTask = fetchResource((params) => `/api/projects/${params.pid}/tasks/${params.tid}`, 'task');
 const fetchProject = fetchResource((params) => `/api/projects/${params.pid}`, 'project');
+const fetchProjects = fetchResource((params) => `/api/projects`, 'projects');
 
 const fetchTasks = async ({params}) => {
  if (params.pid === undefined) {
@@ -25,4 +26,4 @@ const fetchTasks = async ({params}) => {
  return {pid : params.pid, ...resultObj};
 }
 
-export { loadUser, fetchTask, fetchProject, fetchTasks };
+export { loadUser, fetchTask, fetchTasks, fetchProject, fetchProjects };

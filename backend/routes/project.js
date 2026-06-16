@@ -25,9 +25,7 @@ projectRouter.get('/projects', isAuthenticated, async (req, res) => {
             ownerId : req.session.userId
         }
     });
-    return res.json({
-        projects
-    });
+    return res.json(projects);
 });
 
 //read a specific project from a user

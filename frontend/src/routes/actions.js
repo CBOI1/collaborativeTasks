@@ -8,7 +8,7 @@ const taskFormDataToObj = (fd) => ({
       finished: fd.get("finished") ? true : false
   });
 
-function createAction(method, createUrl, redirectUrl, makeBody, ) {
+function createAction(method, createUrl, redirectUrl = () => undefined, makeBody = () => undefined) {
   return async ({request, params}) => {
     const formData = await request.formData();
     const res = await fetch(createUrl(params), {
@@ -24,7 +24,11 @@ function createAction(method, createUrl, redirectUrl, makeBody, ) {
       generateErrorToast(data.errors);
       return;
     }
-    return redirect(redirectUrl(params));
+    const redirUrl = redirectUrl(params);
+    if (redirUrl) {
+      return redirect(redirectUrl(params));
+    }
+    
   }
 }
 const createTask = createAction(
@@ -55,4 +59,9 @@ const updateProject = createAction(
   fd => ({title : fd.get("title")})
 );
 
-export {updateTask, createTask, createProject, updateProject};
+const deleteProject = createAction(
+  "DELETE",
+  params => `/api/projects/${params.pid}`
+)
+
+export {updateTask, createTask, createProject, updateProject, deleteProject};
