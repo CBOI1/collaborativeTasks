@@ -67,7 +67,7 @@ function Sidebar() {
        
         </ul>
         <Modal
-            title={"Do you want to delete this project"}
+            title={"Do you want to delete this project? All associated tasks will also be deleted."}
             confirmText={"Confirm"}
             onConfirm={async () => {
                 console.log("Hello from delete modal");
