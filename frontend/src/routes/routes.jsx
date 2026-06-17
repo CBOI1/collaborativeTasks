@@ -5,7 +5,7 @@ import Dashboard from "../pages/Dashboard"
 import Project from "../pages/Project";
 import { NewTask, ExistingTask } from "../pages/Task";
 import { loadUser, fetchTask, fetchTasks, fetchProject, fetchProjects} from "./loaders";
-import { createTask, updateTask, createProject, updateProject, deleteProject, registerUser, inviteUser } from "./actions";
+import actions from "./actions";
 import { ProtectedRoute, UnauthRoute } from "../components/RouteGuards";
 import RootLayout from "../Layouts/RootLayout";
 import Sidebar from "../components/Sidebar";
@@ -28,11 +28,12 @@ const router = createBrowserRouter([
           {
             path: "register",
             Component : Register,
-            action: registerUser
+            action: actions.registerUser
           },
           {
             path: "login",
             Component: Login,
+            action: actions.loginUser
           },
         ]
       },
@@ -56,13 +57,13 @@ const router = createBrowserRouter([
           {
             path: "projects/new",
             Component: Project,
-            action: createProject
+            action: actions.createProject
           },
           {
             path: 'projects/:pid/update',
             Component: Project,
             loader: fetchProject,
-            action: updateProject,
+            action: actions.updateProject,
             id: "project-info"
           },
           {
@@ -70,21 +71,21 @@ const router = createBrowserRouter([
             Component: ExistingTask,
             loader: fetchTask,
             id: "get-task",
-            action: updateTask
+            action: actions.updateTask
           },
           {
             path: "projects/:pid/tasks/new",
             Component: NewTask,
-            action: createTask
+            action: actions.createTask
           },
           {
             path: "projects/:pid/delete",
-            action: deleteProject
+            action: actions.deleteProject
           },
           {
             path: "projects/:pid/invite",
             Component: "Invite",
-            action: inviteUser
+            action: actions.inviteUser
           }
         ]
       }

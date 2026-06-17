@@ -80,6 +80,25 @@ const registerUser = createAction(
     password: fd.get("password"),
     confirmPassword: fd.get("confirmPassword")
   })
-)
+);
 
-export {updateTask, createTask, createProject, updateProject, deleteProject, inviteUser, registerUser};
+const loginUser = createAction(
+  "POST",
+  params => "/api/login",
+  params => "/dashboard",
+  fd => ({
+    email: fd.get("email"),
+    password: fd.get("password")
+  })
+);
+
+export default {
+  updateTask, 
+  createTask, 
+  createProject, 
+  updateProject, 
+  deleteProject, 
+  inviteUser, 
+  registerUser, 
+  loginUser
+};

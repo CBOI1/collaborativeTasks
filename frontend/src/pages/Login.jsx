@@ -2,37 +2,21 @@ import { loginSchema } from "./../../schemas/registerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
 import { Toaster, toast } from "react-hot-toast";
-import { useRouteLoaderData, useNavigate, useRevalidator} from "react-router";
+import { useRouteLoaderData, useNavigate, useRevalidator, useFetcher} from "react-router";
 import { generateErrorToast } from "../utils.jsx";
 import { RHFInput } from "../components/FormInputs.jsx";
 
-const login = async (credentials) => {
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type' : 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify(credentials)
-    });
-    if (!res.ok) {
-        const data = await res.json();
-        generateErrorToast(data.errors);
-        return false;
-    }
-    return true;
-}
 
 function LoginForm() {
+    const fetcher = useFetcher();
     const {handleSubmit, register, formState : {errors}} = useForm({ resolver : zodResolver(loginSchema) })
     const navigate = useNavigate();
     const {revalidate} = useRevalidator();
     const handler = async (data) => {
-        const successfulLogin = await login(data);
-        if (successfulLogin) {
-            revalidate();
-            navigate('/dashboard');
-        }
+        fetcher.submit(data, {
+            method: "POST",
+            action: "/login"
+        });
     }
     return <div className="flex flex-col self-stretch grow items-center">
         <Toaster></Toaster>

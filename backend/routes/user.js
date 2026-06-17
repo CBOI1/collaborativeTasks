@@ -34,7 +34,7 @@ userRoutes.post('/login',
         const userObj = await db.user.findUnique({
             where : {email : userInfo.email}
         });
-        req.session.regenerate((err) => {
+        return req.session.regenerate((err) => {
             req.session.userId = userObj.id;
             res.json({ user : userObj });
         });
