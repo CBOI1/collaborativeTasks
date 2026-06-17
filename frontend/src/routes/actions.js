@@ -64,4 +64,22 @@ const deleteProject = createAction(
   params => `/api/projects/${params.pid}`
 )
 
-export {updateTask, createTask, createProject, updateProject, deleteProject};
+const inviteUser = createAction(
+  "POST",
+  params => `/api/projects/${params.pid}/invite`,
+  params => `/dashboard/${params.pid}`,
+  fd => ({email: fd.get("email")})
+)
+
+const registerUser = createAction(
+  "POST",
+  params => "/api/register",
+  params => "/login",
+  fd => ({
+    email: fd.get("email"),
+    password: fd.get("password"),
+    confirmPassword: fd.get("confirmPassword")
+  })
+)
+
+export {updateTask, createTask, createProject, updateProject, deleteProject, inviteUser, registerUser};

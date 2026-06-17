@@ -5,10 +5,11 @@ import Dashboard from "../pages/Dashboard"
 import Project from "../pages/Project";
 import { NewTask, ExistingTask } from "../pages/Task";
 import { loadUser, fetchTask, fetchTasks, fetchProject, fetchProjects} from "./loaders";
-import { createTask, updateTask, createProject, updateProject, deleteProject } from "./actions";
+import { createTask, updateTask, createProject, updateProject, deleteProject, registerUser, inviteUser } from "./actions";
 import { ProtectedRoute, UnauthRoute } from "../components/RouteGuards";
 import RootLayout from "../Layouts/RootLayout";
 import Sidebar from "../components/Sidebar";
+import Invite from "../pages/Invite";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
           {
             path: "register",
             Component : Register,
+            action: registerUser
           },
           {
             path: "login",
@@ -78,6 +80,11 @@ const router = createBrowserRouter([
           {
             path: "projects/:pid/delete",
             action: deleteProject
+          },
+          {
+            path: "projects/:pid/invite",
+            Component: "Invite",
+            action: inviteUser
           }
         ]
       }

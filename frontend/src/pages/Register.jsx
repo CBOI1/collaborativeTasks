@@ -2,7 +2,7 @@ import { registerSchema } from "./../../schemas/registerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from 'react-hook-form';
-import { useNavigate } from "react-router";
+import { useNavigate, useFetcher } from "react-router";
 import toast, { Toaster } from 'react-hot-toast';
 import { generateErrorToast } from "../utils.jsx";
 import styles from "./style.module.css"
@@ -17,24 +17,13 @@ function RegisterForm() {
     } = useForm({
         resolver: zodResolver(registerSchema)
     });
+    const fetcher = useFetcher();
     const navigate = useNavigate();
     async function sendFormData(data, e) {
-        e.preventDefault(); // stop page reload
-        const response = await fetch("/api/register", 
-        {
+        fetcher.submit(data, {
             method: "POST",
-            headers: {
-                "Content-Type" : "application/json"
-            },
-            body: JSON.stringify(data),
+            action: '/register'
         });
-        const responseData = await response.json();
-        //handle response
-        if (responseData.success) {
-            navigate("/login");
-        } else {
-            generateErrorToast(responseData.errors);
-        }
     }
     const getErrorMsg = (prop) => (prop?.message ?? "placeholder");
     const activeErrorStyling = (error) => (error ? 'opacity-100' : 'opacity-0 pointer-events-none');

@@ -1,5 +1,5 @@
 import styles from "./Sidebar.module.css";
-import { FiChevronLeft, FiChevronRight, FiMoreVertical, FiEdit, FiTrash2} from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiMoreVertical, FiEdit, FiTrash2, FiMail} from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useRevalidator, useFetcher, useRouteLoaderData } from "react-router-dom";
 import Modal from "./Modal";
@@ -15,6 +15,14 @@ function Sidebar() {
     const { projects } = useRouteLoaderData("projects") ?? {projects: []}
     const navigate = useNavigate();
     const options = [
+        {
+            name: "invite",
+            icon: <FiMail/>,
+            styling: "ml-6 text-blue-600",
+            action: () => {
+                navigate(`/projects/${activePid}/invite`)
+            }
+        },
         {
             name: "edit",
             icon: <FiEdit/>,
@@ -56,7 +64,7 @@ function Sidebar() {
                                 className={`flex flex-col bg-blue-100`}
                             >
                                 {options.map((option, index, arr) => {
-                                    return <span className={`flex cursor-pointer ${option.styling}`} onClick={option.action}>
+                                    return <span className={`flex cursor-pointer gap-1 ${option.styling}`} onClick={option.action}>
                                             {option.name} {option.icon}
                                     </span>
                                 })}
