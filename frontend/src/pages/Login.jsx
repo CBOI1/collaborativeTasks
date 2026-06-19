@@ -1,4 +1,4 @@
-import { loginSchema } from "./../../schemas/registerSchema";
+import { loginSchema } from "../../schemas/schema.js";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from 'react-hook-form';
 import { Toaster, toast } from "react-hot-toast";

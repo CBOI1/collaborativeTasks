@@ -20,7 +20,7 @@ const loginValidators = [
                 throw new Error(`${val} is not registered`);
             }
             return true;
-        }),
+        }).toLowerCase(),
         body('password')
         .isLength({min: MIN_PASSWORD_LEN}).withMessage("Password must be at least 8 characters")
         .bail()
@@ -75,7 +75,7 @@ module.exports = {
                 throw new Error(`Email:${val} is already in use`);
             }
             return true;
-        }).withMessage((val) => `${val} is already registered`),
+        }).withMessage((val) => `${val} is already registered`).toLowerCase(),
         body("password").isLength({min: MIN_PASSWORD_LEN}).withMessage(`Password must be at least ${MIN_PASSWORD_LEN} characters.`),
         body("confirmPassword").custom((val, {req}) => val === req.body.password).withMessage("Passwords do not match"),
         checkValidation

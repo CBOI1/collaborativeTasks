@@ -1,4 +1,4 @@
-import { registerSchema } from "./../../schemas/registerSchema";
+import { registerSchema } from "../../schemas/schema.js";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from 'react-hook-form';

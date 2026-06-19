@@ -6,8 +6,25 @@ const bcrypt = require("bcrypt");
 const {validationResult, matchedData} = require('express-validator');
 const {httpCodes} = require(path.join(__dirname, '..', 'utils'));
 const SALT_ROUNDS = 10;
+const RECORD_LIMIT = 10;
+const { isAuthenticated } = require('../utils');
 
 const userRoutes = express.Router();
+
+userRoutes.get('/search', isAuthenticated, async (req, res) => {
+    const data = await db.user.findMany({
+        where: {
+            email : {
+                startsWith: req.query.email.toLowerCase()
+            }
+        },
+        select: {
+            email : true
+        },
+        take: RECORD_LIMIT
+    })
+    return res.json(data);
+});
 
 userRoutes.post('/register', 
     registerIsValid,

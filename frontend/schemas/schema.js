@@ -17,7 +17,13 @@ const loginSchema = z.object({
     password: z.string().min(MIN_PASSWORD_LEN)
 })
 
+const inviteSchema = z.object({
+    email: z.email(),
+    role: z.literal(["EDIT", "VIEW"])
+});
+
 export {
     registerSchema,
-    loginSchema
+    loginSchema,
+    inviteSchema
 }

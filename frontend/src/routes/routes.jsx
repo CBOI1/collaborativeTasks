@@ -4,7 +4,7 @@ import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard"
 import Project from "../pages/Project";
 import { NewTask, ExistingTask } from "../pages/Task";
-import { loadUser, fetchTask, fetchTasks, fetchProject, fetchProjects} from "./loaders";
+import loaders from "./loaders";
 import actions from "./actions";
 import { ProtectedRoute, UnauthRoute } from "../components/RouteGuards";
 import RootLayout from "../Layouts/RootLayout";
@@ -15,7 +15,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     Component: RootLayout,
-    loader: loadUser,
+    loader: loaders.loadUser,
     id: "root",
     children : [
       {
@@ -42,14 +42,14 @@ const router = createBrowserRouter([
         children : [
           {
             path: 'dashboard/:pid?',
-            loader: fetchTasks,
+            loader: loaders.fetchTasks,
             id: "dashboard",
             Component: Dashboard,
             children: [
               {
                 index: true,
                 Component: Sidebar,
-                loader: fetchProjects,
+                loader: loaders.fetchProjects,
                 id: 'projects'
               }
             ]
@@ -62,14 +62,14 @@ const router = createBrowserRouter([
           {
             path: 'projects/:pid/update',
             Component: Project,
-            loader: fetchProject,
+            loader: loaders.fetchProject,
             action: actions.updateProject,
             id: "project-info"
           },
           {
             path: "projects/:pid/tasks/:tid/update",
             Component: ExistingTask,
-            loader: fetchTask,
+            loader: loaders.fetchTask,
             id: "get-task",
             action: actions.updateTask
           },
@@ -84,8 +84,12 @@ const router = createBrowserRouter([
           },
           {
             path: "projects/:pid/invite",
-            Component: "Invite",
+            Component: Invite,
             action: actions.inviteUser
+          }, 
+          {
+            path: "/search",
+            loader: loaders.searchUsers
           }
         ]
       }
