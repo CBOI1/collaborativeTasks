@@ -16,10 +16,14 @@ userRoutes.get('/search', isAuthenticated, async (req, res) => {
         where: {
             email : {
                 startsWith: req.query.email.toLowerCase()
+            },
+            id: {
+                not: req.session.userId
             }
         },
         select: {
-            email : true
+            email : true,
+            id: true
         },
         take: RECORD_LIMIT
     })
