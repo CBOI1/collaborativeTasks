@@ -64,9 +64,9 @@ const deleteProject = createAction(
   params => `/api/projects/${params.pid}`
 )
 
-const inviteUser = createAction(
+const shareWithUser = createAction(
   "POST",
-  params => `/api/projects/${params.pid}/invite`,
+  params => `/api/projects/${params.pid}/share`,
   params => `/dashboard/${params.pid}`,
   fd => ({
     email: fd.get("email"),
@@ -101,7 +101,7 @@ export default {
   createProject, 
   updateProject, 
   deleteProject, 
-  inviteUser, 
+  shareWithUser, 
   registerUser, 
   loginUser
 };

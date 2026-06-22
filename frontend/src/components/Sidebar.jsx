@@ -1,5 +1,5 @@
 import styles from "./Sidebar.module.css";
-import { FiChevronLeft, FiChevronRight, FiMoreVertical, FiEdit, FiTrash2, FiMail} from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiMoreVertical, FiEdit, FiTrash2, FiMail, FiUsers} from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useRevalidator, useFetcher, useRouteLoaderData } from "react-router-dom";
 import Modal from "./Modal";
@@ -16,8 +16,8 @@ function Sidebar() {
     const navigate = useNavigate();
     const options = [
         {
-            name: "invite",
-            icon: <FiMail/>,
+            name: "share",
+            icon: <FiUsers/>,
             styling: "ml-6 text-blue-600",
             action: () => {
                 navigate(`/projects/${activePid}/invite`)

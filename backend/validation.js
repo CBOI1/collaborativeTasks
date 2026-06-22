@@ -92,7 +92,7 @@ module.exports = {
         .isLength({max: PROJ_TITLE_MAX_LEN}),
         checkValidation
     ],
-    invitationIsValid: [
+    shareIsValid: [
         body('email').trim().notEmpty().withMessage('Email field cannot be empty').bail()
         .custom(async (email, {req}) => { 
             //check email exists in database

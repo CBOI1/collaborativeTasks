@@ -20,7 +20,7 @@ projectRouter.post('/projects', isAuthenticated, projectIsValid, async (req, res
     })
 });
 
-projectRouter.post('/projects/:pid/invite', isAuthenticated, invitationIsValid, async (req, res) => {
+projectRouter.post('/projects/:pid/share', isAuthenticated, shareIsValid, async (req, res) => {
     //add entry to project members
     const data = matchedData(req);
     await db.projectMember.create({

@@ -9,7 +9,7 @@ import actions from "./actions";
 import { ProtectedRoute, UnauthRoute } from "../components/RouteGuards";
 import RootLayout from "../Layouts/RootLayout";
 import Sidebar from "../components/Sidebar";
-import Invite from "../pages/Invite";
+import AddCollaborator from "../pages/AddCollaborator";
 
 const router = createBrowserRouter([
   {
@@ -83,9 +83,9 @@ const router = createBrowserRouter([
             action: actions.deleteProject
           },
           {
-            path: "projects/:pid/invite",
-            Component: Invite,
-            action: actions.inviteUser
+            path: "projects/:pid/share",
+            Component: AddCollaborator,
+            action: actions.shareWithUser
           }, 
           {
             path: "/search",
