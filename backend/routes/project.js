@@ -1,9 +1,11 @@
 const express = require("express");
+const { matchedData } = require("express-validator");
 const path = require("path");
+const { pid } = require("process");
 const db = require(path.join(__dirname, '../database.js'));
 const { httpCodes, isAuthenticated, userCanAccessProject, parseIntBase10 } = require(path.join(__dirname, '..', 'utils'));
 const projectRouter = express.Router();
-const { projectIsValid } = require(path.join(__dirname, '../validation'));
+const { projectIsValid, invitationIsValid } = require(path.join(__dirname, '../validation'));
 //create a project for a specific user
 projectRouter.post('/projects', isAuthenticated, projectIsValid, async (req, res) => {
     const userId = req.session.userId;
@@ -18,6 +20,19 @@ projectRouter.post('/projects', isAuthenticated, projectIsValid, async (req, res
     })
 });
 
+projectRouter.post('/projects/:pid/invite', isAuthenticated, invitationIsValid, async (req, res) => {
+    //add entry to project members
+    const data = matchedData(req);
+    await db.projectMember.create({
+        data: {
+            projectId: parseIntBase10(req.params.pid),
+            userId: req.inviteeId,
+            role: data.role
+        }
+    });
+    res.json(":)");
+});
+
 //read a specific user's projects
 projectRouter.get('/projects', isAuthenticated, async (req, res) => {
     const projects = await db.project.findMany({
@@ -29,7 +44,6 @@ projectRouter.get('/projects', isAuthenticated, async (req, res) => {
 });
 
 //read a specific project from a user
-
 projectRouter.get('/projects/:pid', userCanAccessProject, async (req, res) => {
     const project = await db.project.findUnique({
         where : {

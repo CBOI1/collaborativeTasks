@@ -21,7 +21,7 @@ function RegisterForm() {
     const navigate = useNavigate();
     async function sendFormData(data, e) {
         fetcher.submit(data, {
-            method: "POST",
+            method: "post",
             action: '/register'
         });
     }

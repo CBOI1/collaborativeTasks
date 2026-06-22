@@ -91,5 +91,34 @@ module.exports = {
         body('title').trim().notEmpty().withMessage('Project must have a title').bail()
         .isLength({max: PROJ_TITLE_MAX_LEN}),
         checkValidation
+    ],
+    invitationIsValid: [
+        body('email').trim().notEmpty().withMessage('Email field cannot be empty').bail()
+        .custom(async (email, {req}) => { 
+            //check email exists in database
+            //also check email doesn't belong to the user performing invite
+            const userEmail = await db.user.findUnique({
+                where : {
+                    email: email,
+                    NOT : {
+                       id: req.session.userId
+                    }
+                }
+            });
+            if (!userEmail) {
+                throw new Error('Email must exist and not belong to the inviter.')
+            }
+            req.inviteeId = userEmail.id;
+            req.inviteeEmail = email;
+            //check user not already invited...
+            return true
+        }),
+        body('role').custom(val => {
+            if (val !== 'EDIT' && val !== 'VIEW') {
+                throw new Error("Role must be Edit or View");
+            }
+            return true
+        }),
+        checkValidation
     ]
 }

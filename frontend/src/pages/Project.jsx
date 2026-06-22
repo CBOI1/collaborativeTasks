@@ -6,7 +6,7 @@ function Project() {
     const data = useRouteLoaderData("project-info");
     const [charCount, setCharCount] = useState(data ? data.project.title.length : 0);
     return <div className="grow flex flex-col items-center">
-        <Form method="POST" className="grow flex flex-col justify-center min-w-1/2 gap-4">
+        <Form method="post" className="grow flex flex-col justify-center min-w-1/2 gap-4">
             <div className={styles.inputContainer}>
                 <label htmlFor="title">Title:</label>
                 <input 

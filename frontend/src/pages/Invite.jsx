@@ -10,6 +10,7 @@ import styles from "./style.module.css"
 function Invite() {
     const WAIT_HALF_SECOND = 500;
     const searchFetcher = useFetcher();
+    const submitFetcher = useFetcher();
     const [searchInput, setSearchInput] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [isFocused, setIsFocused] = useState(false);
@@ -37,11 +38,8 @@ function Invite() {
     //display server response body only when search input element is focused
     useDisplayWhenFocused(isFocused, listRef);
 
-    const onSubmit = () => {
-        return null;
-    }
     return <div className="flex flex-col grow items-center justify-center" >
-        <Form onSubmit={onSubmit} className="grow flex flex-col min-w-1/2 gap-8 justify-center">
+        <Form method="post" className="grow flex flex-col min-w-1/2 gap-8 justify-center">
             <div className={`${styles.inputContainer} relative`} >
                 <label htmlFor="email">Email:</label>
                 <input 
@@ -64,7 +62,7 @@ function Invite() {
                     >
                         {searchResults.map((elem, index, a) => 
                         <li
-                        key={elem.id}
+                            key={elem.id}
                             className="pointer"
                             onClick={e => {
                                 setSearchInput(e.currentTarget.textContent);
@@ -76,11 +74,13 @@ function Invite() {
                     </ul>
                 }
             </div>
-            <select id="role" name="role" className={styles.inputStyle}>
-                <option value="">Select a role</option>
-                <option value="EDIT">Edit</option>
-                <option value="VIEW">View</option>
-            </select>
+            <div>
+                <label htmlFor="role" className={styles.inputContainer}>Select a role</label>
+                <select id="role" name="role" className={`${styles.inputStyle} px-4`}>
+                    <option value="EDIT">Edit</option>
+                    <option value="VIEW">View</option>
+                </select>
+            </div>
             <button type="submit" className="self-center">Invite</button>
         </Form>
     </div>

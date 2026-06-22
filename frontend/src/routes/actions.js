@@ -68,7 +68,10 @@ const inviteUser = createAction(
   "POST",
   params => `/api/projects/${params.pid}/invite`,
   params => `/dashboard/${params.pid}`,
-  fd => ({email: fd.get("email")})
+  fd => ({
+    email: fd.get("email"),
+    role : fd.get('role')
+  })
 )
 
 const registerUser = createAction(
