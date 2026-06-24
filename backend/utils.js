@@ -21,13 +21,33 @@ const userOwnsProject = async (req, res, next) => {
     if (req.params.pid === 'undefined') {
         return res.status(httpCodes.BAD_REQUEST).json({});
     }
-    const pRecord = await db.project.findUnique({
+    const memberRecord = await db.projectMember.findUnique({
         where : {
-            id : parseIntBase10(req.params.pid),
-            ownerId: req.session.userId
+            projectId_userId : {
+                projectId : parseIntBase10(req.params.pid),
+                userId: req.session.userId
+            }
         }
     });
-    if (!pRecord) {
+    if (!memberRecord && memberRecord.role === "OWNER") {
+        return res.status(httpCodes.BAD_REQUEST).json({});
+    }
+    next();
+}
+
+const userIsProjectMember = async (req, res, next) => {
+    if (req.params.pid === 'undefined') {
+        return res.status(httpCodes.BAD_REQUEST).json({});
+    }
+    const memberRecord = await db.projectMember.findUnique({
+        where : {
+            projectId_userId : {
+                projectId : parseIntBase10(req.params.pid),
+                userId: req.session.userId
+            }
+        }
+    });
+    if (!memberRecord && memberRecord.userId === req.session.userId) {
         return res.status(httpCodes.BAD_REQUEST).json({});
     }
     next();
@@ -43,13 +63,18 @@ const userOwnsTask = async (req, res, next) => {
         },
         include : {
             project : {
-                select : {
-                    ownerId : true
+                include: {
+                    members: {
+                        where : {
+                            userId : req.session.userId
+                        }
+                    }
                 }
             }
         }
     });
-    if (tRecord === null || tRecord.project.ownerId !== req.session.userId) {
+    const memberRecord = tRecord?.project.members[0];
+    if (memberRecord === null || memberRecord.userId !== req.session.userId) {
         return res.status(httpCodes.BAD_REQUEST).json({});
     }
     next();
@@ -59,6 +84,7 @@ module.exports = {
     httpCodes,
     parseIntBase10 : (num) => parseInt(num, 10),
     isAuthenticated,
-    userCanAccessProject : [isAuthenticated, userOwnsProject],
+    userOwnsProject : [isAuthenticated, userOwnsProject],
+    userCanAccessProject: [isAuthenticated, userIsProjectMember],
     userCanAccessTask : [isAuthenticated, userOwnsTask]
 }

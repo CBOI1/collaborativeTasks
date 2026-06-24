@@ -98,7 +98,7 @@ function DashboardContent() {
                 //onConfirm is responsible for making sure isOpen becomes false
                 await fetch(`/api/projects/${pid}/tasks/${activeTid}`, {
                 credentials: "include",
-                method: "DELETE"
+                method: "delete"
             });
                 setModalIsOpen(false)
                 revalidator.revalidate();

@@ -20,7 +20,7 @@ function Sidebar() {
             icon: <FiUsers/>,
             styling: "ml-6 text-blue-600",
             action: () => {
-                navigate(`/projects/${activePid}/invite`)
+                navigate(`/projects/${activePid}/share`)
             }
         },
         {
@@ -50,7 +50,9 @@ function Sidebar() {
         }}>
             {
                 projects?.map(p => {
-                    return <li key={p.id}>
+                    return <li 
+                        key={p.id}
+                    >
                         <NavLink
                             onClick={() => setActivePid(p.id)} 
                             to={`/dashboard/${p.id}`}
@@ -64,7 +66,23 @@ function Sidebar() {
                                 className={`flex flex-col bg-blue-100`}
                             >
                                 {options.map((option, index, arr) => {
-                                    return <span className={`flex cursor-pointer gap-1 ${option.styling}`} onClick={option.action}>
+                                    return <span
+                                        className={`flex cursor-pointer gap-1 ${option.styling}`} 
+                                        onClick={option.action} 
+                                        style={(() => {
+                                            const cantDelete = option.name === 'delete' && !p.isOwner
+                                            if (!cantDelete) {
+                                                return {}
+                                            } else {
+                                                return {
+                                                    pointerEvents: "none",
+                                                    opacity: "0.5",
+                                                    filter: "grayscale(100%)"
+                                                }
+                                            }
+                                            
+                                        })()}
+                                    >
                                             {option.name} {option.icon}
                                     </span>
                                 })}

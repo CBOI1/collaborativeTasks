@@ -3,9 +3,10 @@ const { matchedData } = require("express-validator");
 const path = require("path");
 const { pid } = require("process");
 const db = require(path.join(__dirname, '../database.js'));
-const { httpCodes, isAuthenticated, userCanAccessProject, parseIntBase10 } = require(path.join(__dirname, '..', 'utils'));
+const { Role } = require(path.join(__dirname, "..", "/generated/prisma/client"));
+const { httpCodes, isAuthenticated, userCanAccessProject, userOwnsProject, parseIntBase10 } = require(path.join(__dirname, '..', 'utils'));
 const projectRouter = express.Router();
-const { projectIsValid, invitationIsValid } = require(path.join(__dirname, '../validation'));
+const { projectIsValid, invitationIsValid, shareIsValid } = require(path.join(__dirname, '../validation'));
 //create a project for a specific user
 projectRouter.post('/projects', isAuthenticated, projectIsValid, async (req, res) => {
     const userId = req.session.userId;
@@ -15,43 +16,60 @@ projectRouter.post('/projects', isAuthenticated, projectIsValid, async (req, res
             ownerId : userId
         }
     });
+    const ownerRecord = await db.projectMember.create({
+        data: {
+            projectId : projectRecord.id,
+            userId: parseIntBase10(req.session.userId),
+            role: Role.OWNER
+        }
+    });
     return res.json({
-        project: projectRecord
+        project: projectRecord,
+        membership : ownerRecord
     })
 });
 
 projectRouter.post('/projects/:pid/share', isAuthenticated, shareIsValid, async (req, res) => {
     //add entry to project members
-    const data = matchedData(req);
-    await db.projectMember.create({
+    const memberRecord = await db.projectMember.create({
         data: {
             projectId: parseIntBase10(req.params.pid),
             userId: req.inviteeId,
-            role: data.role
+            role: req.role
         }
     });
-    res.json(":)");
+    res.json({
+        membership: memberRecord
+    });
 });
 
 //read a specific user's projects
 projectRouter.get('/projects', isAuthenticated, async (req, res) => {
-    const projects = await db.project.findMany({
+    const memberRecords = await db.projectMember.findMany({
         where: {
-            ownerId : req.session.userId
+            userId: req.session.userId
+        },
+        include: {
+            project: true
         }
     });
-    return res.json(projects);
+    return res.json(memberRecords.map(record => ({...record.project, isOwner: record.role === Role.OWNER})));
 });
 
 //read a specific project from a user
 projectRouter.get('/projects/:pid', userCanAccessProject, async (req, res) => {
-    const project = await db.project.findUnique({
+    const memberRecord = await db.projectMember.findUnique({
         where : {
-            ownerId: req.session.userId,
-            id: parseIntBase10(req.params.pid)
+            projectId_userId : {
+                userId: req.session.userId,
+                projectId: parseIntBase10(req.params.pid)
+            }
+        },
+        include : {
+            project: true
         }
-    })
-    return res.json(project);
+    });
+    return res.json(memberRecord.project);
 });
 
 projectRouter.patch('/projects/:pid', userCanAccessProject, projectIsValid, async (req, res) => {
@@ -66,7 +84,7 @@ projectRouter.patch('/projects/:pid', userCanAccessProject, projectIsValid, asyn
     return res.json(null);
 });
 
-projectRouter.delete('/projects/:pid', userCanAccessProject, async (req, res) => {
+projectRouter.delete('/projects/:pid', userOwnsProject, async (req, res) => {
     await db.project.delete({
         where : {
             id : parseIntBase10(req.params.pid)

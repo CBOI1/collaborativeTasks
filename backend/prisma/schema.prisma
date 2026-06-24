@@ -47,11 +47,11 @@ model ProjectMember {
   userId        Int
   project       Project @relation(fields: [projectId], references: [id])
   user          User    @relation(fields: [userId], references: [id])
-  role          Role    @default(EDIT)
-  @@id([projectId, userId])
+  role          Role    @default(MEMBER)
+  @@id([projectId, userId], name: "id")
 }
 
 enum Role {
-  EDIT
-  VIEW
+  OWNER
+  MEMBER
 }

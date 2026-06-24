@@ -113,10 +113,11 @@ module.exports = {
             //check user not already invited...
             return true
         }),
-        body('role').custom(val => {
-            if (val !== 'EDIT' && val !== 'VIEW') {
-                throw new Error("Role must be Edit or View");
+        body('role').custom((val, {req}) => {
+            if (val !== 'MEMBER') {
+                throw new Error("Role must be a Member.");
             }
+            req.role = val;
             return true
         }),
         checkValidation
