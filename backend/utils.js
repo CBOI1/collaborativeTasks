@@ -1,10 +1,7 @@
 const { validationResult } = require('express-validator');
-const db = require('./database');
-
-const httpCodes = {
-    UNAUTHENTICATED : 401,
-    BAD_REQUEST : 400
-}
+const { db } = require('./database');
+const { userInfo } = require('os');
+const { httpCodes } = require('./constants');
 
 const parseIntBase10 = (num) => parseInt(num, 10);
 
@@ -16,66 +13,45 @@ const isAuthenticated = (req, res, next) =>  {
     }
 }
 
-//all paths will provide a pid as a route parameter
-const userOwnsProject = async (req, res, next) => {
-    if (req.params.pid === 'undefined') {
-        return res.status(httpCodes.BAD_REQUEST).json({});
-    }
-    const memberRecord = await db.projectMember.findUnique({
-        where : {
-            projectId_userId : {
-                projectId : parseIntBase10(req.params.pid),
-                userId: req.session.userId
-            }
+
+const isMemberWithAllowedRole = ({roles = []}) => {
+    return async (req, res, next) => {
+        if (req.params.pid === 'undefined') {
+            return res.status(httpCodes.BAD_REQUEST).json({});
         }
-    });
-    if (!memberRecord && memberRecord.role === "OWNER") {
-        return res.status(httpCodes.BAD_REQUEST).json({});
+        const memberRecord = await db.projectMember.findUnique({
+            where : {
+                projectId_userId : {
+                    projectId : parseIntBase10(req.params.pid),
+                    userId: req.session.userId
+                },
+            }
+        });
+        if (!memberRecord || !roles.includes(memberRecord.role)) {
+            return res.status(httpCodes.BAD_REQUEST).json({});
+        }
+        req.role = memberRecord.role;
+        next();
     }
-    next();
 }
 
-const userIsProjectMember = async (req, res, next) => {
-    if (req.params.pid === 'undefined') {
-        return res.status(httpCodes.BAD_REQUEST).json({});
-    }
-    const memberRecord = await db.projectMember.findUnique({
-        where : {
-            projectId_userId : {
-                projectId : parseIntBase10(req.params.pid),
-                userId: req.session.userId
-            }
-        }
-    });
-    if (!memberRecord && memberRecord.userId === req.session.userId) {
-        return res.status(httpCodes.BAD_REQUEST).json({});
-    }
-    next();
-}
 
-const userOwnsTask = async (req, res, next) => {
-    const tRecord = await db.task.findUnique({
-        where : {
-            id : parseIntBase10(req.params.tid),
-            project : {
-                id: parseIntBase10(req.params.pid),
-            }
+
+const taskAssociatedWithProject = async (req, res, next) => { 
+    const record = await db.project.findUnique({
+        where: {
+            id : parseIntBase10(req.params.pid)
         },
         include : {
-            project : {
-                include: {
-                    members: {
-                        where : {
-                            userId : req.session.userId
-                        }
-                    }
+            tasks : {
+                where: {
+                    id : parseIntBase10(req.params.tid)
                 }
             }
         }
     });
-    const memberRecord = tRecord?.project.members[0];
-    if (memberRecord === null || memberRecord.userId !== req.session.userId) {
-        return res.status(httpCodes.BAD_REQUEST).json({});
+    if (record.tasks.length == 0) {
+        res.status(httpCodes.BAD_REQUEST).json(null);
     }
     next();
 }
@@ -84,7 +60,8 @@ module.exports = {
     httpCodes,
     parseIntBase10 : (num) => parseInt(num, 10),
     isAuthenticated,
-    userOwnsProject : [isAuthenticated, userOwnsProject],
-    userCanAccessProject: [isAuthenticated, userIsProjectMember],
-    userCanAccessTask : [isAuthenticated, userOwnsTask]
+    userOwnsProject : [isAuthenticated, isMemberWithAllowedRole({roles : ["OWNER"]})],
+    userCanAccessProject: [isAuthenticated, isMemberWithAllowedRole({roles: ["MEMBER", "OWNER"]})],
+    userHasMemberTaskAccess : [isAuthenticated, taskAssociatedWithProject],
+    userHasOwnerTaskAccess: [isAuthenticated, isMemberWithAllowedRole({roles: ["OWNER"]}), taskAssociatedWithProject]
 }

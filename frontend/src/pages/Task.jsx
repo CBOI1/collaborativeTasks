@@ -9,7 +9,7 @@ function Task({isNew}) {
     const [titleCharCount, updateTitleCharCount] = useState(0);
     const DESC_CHAR_LIMIT = 500;
     const TITLE_CHAR_LIMIT = 100;
-    const task = isNew ? {} : useRouteLoaderData("get-task").task;
+    const task = isNew ? {} : useRouteLoaderData("get-task");
 
     useEffect(() => {
         if (!isNew) {

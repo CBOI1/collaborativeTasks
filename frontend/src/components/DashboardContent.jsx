@@ -8,9 +8,11 @@ import { _null } from "zod/v4/core";
 import useDetectOutsideClick from "../hooks/useDetectOutsideClick.jsx";
 import Modal from "./Modal";
 import MenuOptions from "./MenuOptions.jsx";
+import Role from "../constants.js";
+import styles from "./style.module.css"
 
 //grid grid-cols-3 grid-rows-3 
-function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
+function TaskPreview({pid, role, task, setActiveTid, activeTid, setModalIsOpen}) {
     const navigate = useNavigate();
     const options = [
         {
@@ -19,6 +21,9 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
             styling: "text-green-800",
             action: () => {
                 navigate(`/projects/${pid}/tasks/${task.id}/update`);
+            },
+            canPerform: () => {
+                return role == Role.member || role === Role.owner ? "" : styles.disable
             }
         },
         {
@@ -27,6 +32,9 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
             styling: "text-red-400",
             action: () => {
                 setModalIsOpen(true);
+            },
+            canPerform: () => {
+                return role === Role.owner ? "" : styles.disable
             }
         }
     ]
@@ -38,7 +46,8 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
             <FiMoreVertical onClick={ 
                 (e) => {
                     setActiveTid(task.id);
-                    //stop bubbling to prevent outside click from immediately clearing active task
+                    //stop bubbling to prevent click from immediately clearing active task
+                    //clearing triggers on mousedown which occurs before click event
                     e.stopPropagation();
                 }} className="shrink-0">
             </FiMoreVertical>
@@ -47,7 +56,11 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
                 className={"bg-gray-300 text-black p-2 rounded-full absolute -right-30 -top-6 px-4"}
             >
                 {options.map(option => {
-                    return <li onClick={option.action} className={`flex cursor-pointer ${option.styling}`}>
+                    return <li 
+                    key={option.name}
+                    onClick={option.action} 
+                    className={`flex cursor-pointer ${option.styling} ${option.canPerform()} `}
+                    >
                         <span className="grow">{option.name}</span>
                         {option.icon}
                     </li>
@@ -57,7 +70,7 @@ function TaskPreview({pid, task, setActiveTid, activeTid, setModalIsOpen}) {
     </li>
 }
 
-function TaskList({pid, tasks, activeTid, setActiveTid, setModalIsOpen}) {
+function TaskList({pid, role, tasks, activeTid, setActiveTid, setModalIsOpen}) {
     const createTaskItemStyling = "shrink-0 self-stretch flex bg-gray-200 rounded-lg p-1 space-between"
     return <ul className="flex flex-col gap-2 min-w-1/2 grow">
             <li className={createTaskItemStyling}>
@@ -67,6 +80,7 @@ function TaskList({pid, tasks, activeTid, setActiveTid, setModalIsOpen}) {
             {
                 tasks.map(t => <TaskPreview 
                     pid={pid}
+                    role={role}
                     task={t} 
                     key={t.id} 
                     setActiveTid={setActiveTid} 
@@ -77,15 +91,16 @@ function TaskList({pid, tasks, activeTid, setActiveTid, setModalIsOpen}) {
             }
         </ul>
 }
-
-function DashboardContent() {
+//need to add mechanism to be able to read role of user viewing task list
+function DashboardContent({activePid}) {
     const revalidator = useRevalidator();
-    const {tasks, pid} = useRouteLoaderData('dashboard');
+    const {tasks, role} = useRouteLoaderData('dashboard');
     const [activeTid, setActiveTid] = useState(null);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const displayTasks = <div className="grow flex flex-col justify-center items-center">
         <TaskList 
-            pid={pid}
+            pid={activePid}
+            role={role}
             tasks={tasks ?? []} 
             activeTid={activeTid} 
             setActiveTid={setActiveTid}
@@ -96,7 +111,7 @@ function DashboardContent() {
             confirmText={"Delete"}
             onConfirm={async () => {
                 //onConfirm is responsible for making sure isOpen becomes false
-                await fetch(`/api/projects/${pid}/tasks/${activeTid}`, {
+                await fetch(`/api/projects/${activePid}/tasks/${activeTid}`, {
                 credentials: "include",
                 method: "delete"
             });

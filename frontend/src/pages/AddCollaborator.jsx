@@ -31,7 +31,7 @@ function AddCollaborator() {
     //react to server response being loaded
     useEffect(() => {
         if (searchFetcher.state === "idle" && searchFetcher.data !== undefined) {
-            setSearchResults(searchFetcher.data.users);
+            setSearchResults(searchFetcher.data);
         }
     }, [searchFetcher.state, searchFetcher.data])
 

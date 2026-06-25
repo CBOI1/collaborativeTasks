@@ -1,10 +1,10 @@
 const express = require('express');
 const path = require('path');
-const db = require(path.join(__dirname, '../database.js'));
+const {db, dbQuery} = require(path.join(__dirname, '../database.js'));
 const {registerIsValid, loginIsValid} = require(path.join(__dirname, "../validation.js"));
 const bcrypt = require("bcrypt");
 const {validationResult, matchedData} = require('express-validator');
-const {httpCodes} = require(path.join(__dirname, '..', 'utils'));
+const {httpCodes} = require(path.join(__dirname, '..', 'constants'));
 const SALT_ROUNDS = 10;
 const RECORD_LIMIT = 10;
 const { isAuthenticated } = require('../utils');

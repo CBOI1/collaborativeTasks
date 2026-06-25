@@ -13,14 +13,14 @@ function LogOut() {
     revalidate();
     navigate("/");
   }
-  const { user } = useRouteLoaderData("root");
+  const user = useRouteLoaderData("root");
   //if user is not null return a log out button
   return <button type="button" className="bg-green-200 hover:bg-green-300 rounded-full px-4 py-2" onClick={logout}>Logout</button>;
 }
 
 function NavBar() {
   const {pid} = useParams();
-  const {user} = useRouteLoaderData("root");
+  const user = useRouteLoaderData("root");
   const isDashboardRoute = useMatch('/dashboard/:pid?');
   return <nav className="flex justify-around p-2">
     {!user && <LinkNav to="register" title="Register"/>}

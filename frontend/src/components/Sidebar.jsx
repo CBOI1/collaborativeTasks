@@ -1,18 +1,19 @@
-import styles from "./Sidebar.module.css";
+import sidebarStyles from "./Sidebar.module.css";
 import { FiChevronLeft, FiChevronRight, FiMoreVertical, FiEdit, FiTrash2, FiMail, FiUsers} from "react-icons/fi";
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate, useRevalidator, useFetcher, useRouteLoaderData } from "react-router-dom";
+import { NavLink, useNavigate, useRevalidator, useFetcher, useRouteLoaderData, useOutletContext} from "react-router-dom";
 import Modal from "./Modal";
 import useDetectOutsideClick from "../hooks/useDetectOutsideClick.jsx";
 import MenuOptions from "./MenuOptions.jsx";
-
+import Role from "../constants.js";
+import styles from "./style.module.css"
 
 function Sidebar() {
+    const [activePid, setActivePid] = useOutletContext();
     const fetcher = useFetcher();
-    const [activePid, setActivePid] = useState(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [modalIsOpen, setModalIsOpen] = useState(false);
-    const { projects } = useRouteLoaderData("projects") ?? {projects: []}
+    const projects = useRouteLoaderData("projects") ?? []
     const navigate = useNavigate();
     const options = [
         {
@@ -20,7 +21,10 @@ function Sidebar() {
             icon: <FiUsers/>,
             styling: "ml-6 text-blue-600",
             action: () => {
-                navigate(`/projects/${activePid}/share`)
+                navigate(`/projects/${activePid}/share`);
+            },
+            canPerform: (role) => {
+                return role === Role.member || role === Role.owner ? "" : styles.disable;
             }
         },
         {
@@ -29,6 +33,9 @@ function Sidebar() {
             styling: "ml-6 text-green-800",
             action: () => {
                 navigate(`/projects/${activePid}/update`);
+            }, 
+            canPerform: (role) => {
+                return role === Role.member || role === Role.owner ? "" : styles.disable;
             }
         },
         {
@@ -37,11 +44,14 @@ function Sidebar() {
             styling: "ml-6 text-red-600",
             action: () => {
                 setModalIsOpen(true);
+            }, 
+            canPerform: (role) => {
+                return role === Role.owner ? "" : styles.disable;
             }
         }
     ]
     return <div className="bg-blue-200">
-        <button className={`flex ${styles.cleanButton} ${styles.buttonStyle}`}
+        <button className={`flex ${sidebarStyles.cleanButton} ${sidebarStyles.buttonStyle}`}
         onClick={() => {setIsCollapsed(!isCollapsed)}}>
             Projects {isCollapsed ? <FiChevronRight/> : <FiChevronLeft/>}
         </button>
@@ -67,21 +77,8 @@ function Sidebar() {
                             >
                                 {options.map((option, index, arr) => {
                                     return <span
-                                        className={`flex cursor-pointer gap-1 ${option.styling}`} 
+                                        className={`flex cursor-pointer gap-1 ${option.styling} ${option.canPerform(p.role)}`} 
                                         onClick={option.action} 
-                                        style={(() => {
-                                            const cantDelete = option.name === 'delete' && !p.isOwner
-                                            if (!cantDelete) {
-                                                return {}
-                                            } else {
-                                                return {
-                                                    pointerEvents: "none",
-                                                    opacity: "0.5",
-                                                    filter: "grayscale(100%)"
-                                                }
-                                            }
-                                            
-                                        })()}
                                     >
                                             {option.name} {option.icon}
                                     </span>

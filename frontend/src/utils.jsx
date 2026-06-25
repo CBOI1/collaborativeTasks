@@ -1,5 +1,5 @@
-
 import {toast} from 'react-hot-toast';
+import Role from './constants';
 const ToastConfig = {
     position: "top-center",
     duration: 5000,

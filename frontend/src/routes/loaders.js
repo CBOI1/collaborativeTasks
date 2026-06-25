@@ -1,19 +1,19 @@
 
-const fetchResource = (urlConstructor, resourceName) => {
+const fetchResource = (urlConstructor) => {
    return async ({params, request}) => {
-    const resultObj = {}
+    let resultObj;
     const res = await fetch(urlConstructor(params, request), {credentials: "include"});
     if (!res.ok) {
-      resultObj[resourceName] = null;
+      resultObj = null;
     } else {
-      resultObj[resourceName] = await res.json();
+      resultObj = await res.json();
     }
     return resultObj;
  }
 }
 
 const loadUser = fetchResource((params) => '/api/me', 'user');
-const fetchTask = fetchResource((params) => `/api/projects/${params.pid}/tasks/${params.tid}`, 'task');
+const fetchTask = fetchResource((params) => `/api/projects/${params.pid}/tasks/${params.tid}`);
 const fetchProject = fetchResource((params) => `/api/projects/${params.pid}`, 'project');
 const fetchProjects = fetchResource((params) => `/api/projects`, 'projects');
 const searchUsers = fetchResource((params, request) => {
@@ -25,9 +25,9 @@ const fetchTasks = async ({params}) => {
  if (params.pid === undefined) {
    return {tasks : null};
  }
- const getTasks = fetchResource((params) => `/api/projects/${params.pid}/tasks`, 'tasks');
+ const getTasks = fetchResource((params) => `/api/projects/${params.pid}/tasks`);
  const resultObj = await getTasks({params});
- return {pid : params.pid, ...resultObj};
+ return resultObj;
 }
 
 export default { 

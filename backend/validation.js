@@ -1,9 +1,9 @@
 const { body } = require('express-validator');
-const db = require("./database.js");
+const { db } = require("./database.js");
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const MIN_PASSWORD_LEN = 8;
-const { httpCodes } = require('./utils.js');
+const { httpCodes } = require('./constants');
 const PROJ_TITLE_MAX_LEN = 40;
 const TITLE_MAX_LEN = 100;
 const DESC_MAX_LEN = 500;
@@ -110,7 +110,7 @@ module.exports = {
             }
             req.inviteeId = userEmail.id;
             req.inviteeEmail = email;
-            //check user not already invited...
+            //TODO: check user not already invited
             return true
         }),
         body('role').custom((val, {req}) => {

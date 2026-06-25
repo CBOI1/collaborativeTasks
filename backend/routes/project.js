@@ -2,7 +2,7 @@ const express = require("express");
 const { matchedData } = require("express-validator");
 const path = require("path");
 const { pid } = require("process");
-const db = require(path.join(__dirname, '../database.js'));
+const {db, dbQuery} = require(path.join(__dirname, '../database.js'));
 const { Role } = require(path.join(__dirname, "..", "/generated/prisma/client"));
 const { httpCodes, isAuthenticated, userCanAccessProject, userOwnsProject, parseIntBase10 } = require(path.join(__dirname, '..', 'utils'));
 const projectRouter = express.Router();
@@ -53,7 +53,7 @@ projectRouter.get('/projects', isAuthenticated, async (req, res) => {
             project: true
         }
     });
-    return res.json(memberRecords.map(record => ({...record.project, isOwner: record.role === Role.OWNER})));
+    return res.json(memberRecords.map(record => ({...record.project, role: record.role})));
 });
 
 //read a specific project from a user
